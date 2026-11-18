@@ -82,24 +82,38 @@ async function carregarShows() {
   listaShows.innerHTML = "";
 
   shows.forEach(function (show) {
-    const card = document.createElement("div");
+    shows.forEach(function (show) {
+      const card = document.createElement("div");
+      card.className = "show-card";
 
-    card.className = "show-card";
+      const titulo = document.createElement("h4");
+      titulo.textContent = show.nome;
 
-    const titulo = document.createElement("h4");
-    titulo.textContent = show.nome;
+      const data = document.createElement("p");
+      data.textContent = "Data: " + show.data_show;
 
-    const data = document.createElement("p");
-    data.textContent = "Data: " + show.data_show;
+      const local = document.createElement("p");
+      local.textContent = "Local: " + (show.local || "Não informado");
 
-    const local = document.createElement("p");
-    local.textContent = "Local: " + (show.local || "Não informado");
+      // Criar o botão
+      const botaoAbrir = document.createElement("button");
+      botaoAbrir.id = "btn-abrir"
+      botaoAbrir.textContent = "Abrir show";
 
-    card.appendChild(titulo);
-    card.appendChild(data);
-    card.appendChild(local);
+      // Definir o que acontece ao clicar
+      botaoAbrir.addEventListener("click", function () {
+        window.location.href = "show.html?id=" + show.id;
+      });
 
-    listaShows.appendChild(card);
+      // Adicionar os elementos ao card
+      card.appendChild(titulo);
+      card.appendChild(data);
+      card.appendChild(local);
+      card.appendChild(botaoAbrir);
+
+      // Adicionar o card à lista
+      listaShows.appendChild(card);
+    });
   });
 }
 

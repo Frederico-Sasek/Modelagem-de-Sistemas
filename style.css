@@ -10,6 +10,8 @@ body {
   color: #ffffff;
 }
 
+
+/*tela inicial de login*/
 .login-container {
   min-height: 100vh;
   display: flex;
@@ -80,6 +82,8 @@ body {
   font-size: 14px;
 }
 
+
+/*estilo da pagina dashboard*/
 .dashboard-container {
   min-height: 100vh;
   padding: 30px;
@@ -103,7 +107,7 @@ body {
   gap: 20px;
 }
 
-#btn-sair {
+#btn-sair{
   padding: 10px 20px;
   background-color: #dc2626;
   color: white;
@@ -111,6 +115,8 @@ body {
   border-radius: 6px;
   cursor: pointer;
 }
+
+
 
 .shows-section {
   margin-top: 40px;
@@ -178,3 +184,14 @@ body {
   color: #22c55e;
   margin-bottom: 10px;
 }
+
+#btn-abrir{
+  padding: 5px 10px;
+  background-color: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/*aba de shows*/
