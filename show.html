@@ -1,36 +1,139 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ShowFinance | Show</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
     <main class="dashboard-container">
+      <header class="dashboard-header">
+        <h1>ShowFinance</h1>
+        <button id="btn-voltar">Voltar</button>
+      </header>
 
-        <header class="dashboard-header">
-            <h1>ShowFinance</h1>
-            <button id="btn-voltar">Voltar</button>
-        </header>
+      <section class="shows-section">
+        <h2 id="nome-show"></h2>
 
-        <section class="shows-section">
+        <p id="data-show"></p>
+        <p id="local-show"></p>
+        <p id="descricao-show"></p>
 
-            <h2 id="nome-show"></h2>
+        <section class="financeiro-section">
+          <h2>Resumo financeiro</h2>
 
-            <p id="data-show"></p>
-            <p id="local-show"></p>
-            <p id="descricao-show"></p>
+          <div class="financeiro-cards">
+            <div class="financeiro-card">
+              <h3>Receitas</h3>
+              <p id="total-receitas">R$ 0,00</p>
+            </div>
 
-            <div id="mensagem-show"></div>
+            <div class="financeiro-card">
+              <h3>Despesas</h3>
+              <p id="total-despesas">R$ 0,00</p>
+            </div>
 
+            <div class="financeiro-card">
+              <h3>Despesas pendentes</h3>
+              <p id="total-pendentes">R$ 0,00</p>
+            </div>
+
+            <div class="financeiro-card">
+              <h3>Resultado</h3>
+              <p id="resultado-financeiro">R$ 0,00</p>
+            </div>
+          </div>
         </section>
 
+        <div id="mensagem-show"></div>
+      </section>
+      <section class="cadastro-section">
+        <h2>Cadastrar receita</h2>
+
+        <form id="form-receita">
+          <label for="descricao-receita">Descrição</label>
+          <input type="text" id="descricao-receita" required />
+
+          <label for="categoria-receita">Categoria</label>
+          <input type="text" id="categoria-receita" />
+
+          <label for="valor-receita">Valor</label>
+          <input
+            type="number"
+            id="valor-receita"
+            step="0.01"
+            min="0.01"
+            required
+          />
+
+          <label for="data-receita">Data do recebimento</label>
+          <input type="date" id="data-receita" required />
+
+          <button type="submit">Cadastrar receita</button>
+          <p id="mensagem-receita"></p>
+        </form>
+      </section>
+      <section class="cadastro-section">
+        <h2>Cadastrar despesa</h2>
+
+        <form id="form-despesa">
+          <label for="descricao-despesa">Descrição</label>
+          <input type="text" id="descricao-despesa" required />
+
+          <label for="categoria-despesa">Categoria</label>
+          <input type="text" id="categoria-despesa" />
+
+          <label for="valor-despesa">Valor</label>
+          <input
+            type="number"
+            id="valor-despesa"
+            step="0.01"
+            min="0.01"
+            required
+          />
+
+          <label for="vencimento-despesa">Data de vencimento</label>
+          <input type="date" id="vencimento-despesa" />
+
+          <button type="submit">Cadastrar despesa</button>
+
+          <p id="mensagem-despesa"></p>
+        </form>
+      </section>
+      <section class="historico-section">
+    <div class="historico-header">
+        <div>
+            <h2>Histórico de receitas</h2>
+            <p>Todos os recebimentos deste show</p>
+        </div>
+    </div>
+
+    <div class="tabela-container">
+        <table class="tabela-financeira">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Categoria</th>
+                    <th>Data</th>
+                    <th>Valor</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody id="lista-receitas">
+                <tr>
+                    <td colspan="5" class="tabela-vazia">
+                        Nenhuma receita cadastrada.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="show.js"></script>
-
-</body>
+  </body>
 </html>

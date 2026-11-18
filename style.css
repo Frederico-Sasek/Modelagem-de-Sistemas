@@ -10,7 +10,6 @@ body {
   color: #ffffff;
 }
 
-
 /*tela inicial de login*/
 .login-container {
   min-height: 100vh;
@@ -82,7 +81,6 @@ body {
   font-size: 14px;
 }
 
-
 /*estilo da pagina dashboard*/
 .dashboard-container {
   min-height: 100vh;
@@ -107,7 +105,7 @@ body {
   gap: 20px;
 }
 
-#btn-sair{
+#btn-sair {
   padding: 10px 20px;
   background-color: #dc2626;
   color: white;
@@ -115,8 +113,6 @@ body {
   border-radius: 6px;
   cursor: pointer;
 }
-
-
 
 .shows-section {
   margin-top: 40px;
@@ -185,7 +181,7 @@ body {
   margin-bottom: 10px;
 }
 
-#btn-abrir{
+#btn-abrir {
   padding: 5px 10px;
   background-color: #22c55e;
   color: white;
@@ -195,3 +191,195 @@ body {
 }
 
 /*aba de shows*/
+#btn-voltar {
+  padding: 5px 10px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.financeiro-section {
+  margin-top: 35px;
+}
+
+.financeiro-section h2 {
+  margin-bottom: 20px;
+}
+
+.financeiro-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.financeiro-card {
+  background-color: #1e293b;
+  padding: 25px;
+  border-radius: 12px;
+}
+
+.financeiro-card h3 {
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.financeiro-card p {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+}
+
+@media (max-width: 600px) {
+  .financeiro-cards {
+    grid-template-columns: 1fr;
+  }
+}
+/* Histórico financeiro */
+
+.historico-section {
+  margin-top: 40px;
+}
+
+.historico-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.historico-header h2 {
+  margin-bottom: 6px;
+}
+
+.historico-header p {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.tabela-container {
+  width: 100%;
+  overflow-x: auto;
+  background-color: #1e293b;
+  border-radius: 12px;
+}
+
+.tabela-financeira {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 650px;
+}
+
+.tabela-financeira th,
+.tabela-financeira td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid #334155;
+}
+
+.tabela-financeira th {
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.tabela-financeira td {
+  color: #e2e8f0;
+  font-size: 14px;
+}
+
+.tabela-financeira tbody tr:hover {
+  background-color: #263449;
+}
+
+.tabela-financeira tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tabela-vazia {
+  text-align: center !important;
+  color: #94a3b8 !important;
+  padding: 30px !important;
+}
+/* Seções de cadastro */
+
+.cadastro-section {
+  margin-top: 35px;
+  background-color: #1e293b;
+  padding: 25px;
+  border-radius: 12px;
+}
+
+.cadastro-section h2 {
+  margin-bottom: 22px;
+  color: white;
+}
+
+/* Organização dos campos */
+
+.cadastro-section form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 20px;
+}
+
+.cadastro-section label {
+  color: #cbd5e1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Campos de preenchimento */
+
+.cadastro-section input {
+  width: 100%;
+  padding: 12px;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  outline: none;
+}
+
+.cadastro-section input:focus {
+  border-color: #38bdf8;
+}
+
+/* Botões */
+
+.cadastro-section button {
+  grid-column: 1 / -1;
+  padding: 13px;
+  margin-top: 10px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cadastro-section button:hover {
+  background-color: #1d4ed8;
+}
+
+/* Mensagens */
+
+.cadastro-section p {
+  grid-column: 1 / -1;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* Responsividade */
+
+@media (max-width: 600px) {
+  .cadastro-section form {
+    grid-template-columns: 1fr;
+  }
+}
