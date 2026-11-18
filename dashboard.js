@@ -6,6 +6,7 @@ const mensagemShow = document.getElementById("mensagem-show");
 const listaShows = document.getElementById("lista-shows");
 const botaoSair = document.getElementById("btn-sair");
 
+//verificar se exxiste usuario
 async function verificarUsuario() {
   const { data, error } = await clienteSupabase.auth.getUser();
 
@@ -19,6 +20,7 @@ async function verificarUsuario() {
 
 verificarUsuario();
 
+//botao pra sair do lgin
 botaoSair.addEventListener("click", async function () {
   const { error } = await clienteSupabase.auth.signOut();
 
@@ -30,17 +32,13 @@ botaoSair.addEventListener("click", async function () {
   window.location.href = "index.html";
 });
 
+//cadastra novos shows
 formularioShow.addEventListener("submit", async function (event) {
   event.preventDefault();
-
   const nome = document.getElementById("nome-show").value.trim();
-
   const dataShow = document.getElementById("data-show").value;
-
   const local = document.getElementById("local-show").value.trim();
-
   const descricao = document.getElementById("descricao-show").value.trim();
-
   const { data: usuarioData, error: usuarioError } =
     await clienteSupabase.auth.getUser();
 
@@ -59,19 +57,17 @@ formularioShow.addEventListener("submit", async function (event) {
 
   if (error) {
     console.error(error);
-
     mensagemShow.textContent = "Erro ao cadastrar o show.";
     mensagemShow.style.color = "red";
   } else {
     mensagemShow.textContent = "Show cadastrado com sucesso!";
     mensagemShow.style.color = "#22c55e";
-
     formularioShow.reset();
-
     carregarShows();
   }
 });
 
+//mostra os shws existentes no banco de dados
 async function carregarShows() {
   const { data: shows, error } = await clienteSupabase
     .from("shows")
