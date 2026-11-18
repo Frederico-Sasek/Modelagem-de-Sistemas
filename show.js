@@ -60,6 +60,8 @@ async function carregarShow() {
 
   mensagemShow.textContent = "";
   await carregarResumoFinanceiro();
+  await carregarReceitas();
+  await carregarDespesas();
 }
 
 carregarShow();
@@ -176,6 +178,8 @@ formReceita.addEventListener("submit", async function (event) {
 
   // Atualiza os valores do resumo financeiro
   await carregarResumoFinanceiro();
+  await carregarReceitas();
+  await carregarDespesas();
 });
 
 // Cadastro de despesas
@@ -223,70 +227,150 @@ formDespesa.addEventListener("submit", async function (event) {
 
   // Atualiza o resumo financeiro
   await carregarResumoFinanceiro();
+  await carregarReceitas();
 });
 
 // Carrega o histórico de receitas
 async function carregarReceitas() {
+  const listaReceitas = document.getElementById("lista-receitas");
 
-    const listaReceitas = document.getElementById("lista-receitas");
+  // Busca as receitas do show selecionado
+  const { data: receitas, error } = await clienteSupabase
+    .from("receitas")
+    .select("*")
+    .eq("show_id", idShow)
+    .order("data_recebimento", { ascending: false });
 
-    // Busca as receitas do show selecionado
-    const { data: receitas, error } = await clienteSupabase
-        .from("receitas")
-        .select("*")
-        .eq("show_id", idShow)
-        .order("data_recebimento", { ascending: false });
-
-    if (error) {
-        console.error("Erro ao carregar receitas:", error);
-        listaReceitas.innerHTML = `
+  if (error) {
+    console.error("Erro ao carregar receitas:", error);
+    listaReceitas.innerHTML = `
             <tr>
                 <td colspan="5">Erro ao carregar receitas.</td>
             </tr>
         `;
-        return;
-    }
+    return;
+  }
 
-    // Verifica se existem receitas cadastradas
-    if (receitas.length === 0) {
-        listaReceitas.innerHTML = `
+  // Verifica se existem receitas cadastradas
+  if (receitas.length === 0) {
+    listaReceitas.innerHTML = `
             <tr>
                 <td colspan="5" class="tabela-vazia">
                     Nenhuma receita cadastrada.
                 </td>
             </tr>
         `;
-        return;
-    }
+    return;
+  }
 
-    // Limpa a tabela antes de inserir os registros
-    listaReceitas.innerHTML = "";
+  // Limpa a tabela antes de inserir os registros
+  listaReceitas.innerHTML = "";
 
-    // Percorre todas as receitas encontradas
-    receitas.forEach(function(receita) {
+  // Percorre todas as receitas encontradas
+  receitas.forEach(function (receita) {
+    const linha = document.createElement("tr");
 
-        const linha = document.createElement("tr");
+    const dataFormatada = new Date(
+      receita.data_recebimento + "T00:00:00",
+    ).toLocaleDateString("pt-BR");
 
-        const dataFormatada = new Date(
-            receita.data_recebimento + "T00:00:00"
-        ).toLocaleDateString("pt-BR");
+    const valorFormatado = Number(receita.valor).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
 
-        const valorFormatado = Number(receita.valor).toLocaleString(
-            "pt-BR",
-            {
-                style: "currency",
-                currency: "BRL"
-            }
-        );
-
-        linha.innerHTML = `
+    linha.innerHTML = `
             <td>${receita.descricao}</td>
             <td>${receita.categoria || "Não informada"}</td>
             <td>${dataFormatada}</td>
             <td>${valorFormatado}</td>
+            <td>
+        <button class="btn-editar"
+            onclick="editarReceita('${receita.id}')">
+            Editar
+        </button>
+
+        <button class="btn-excluir"
+            onclick="excluirReceita('${receita.id}')">
+            Excluir
+        </button>
+    </td>
+            
+        `;
+
+    listaReceitas.appendChild(linha);
+  });
+}
+// Carrega o histórico de despesas
+async function carregarDespesas() {
+  const listaDespesas = document.getElementById("lista-despesas");
+
+  // Busca as despesas do show selecionado
+  const { data: despesas, error } = await clienteSupabase
+    .from("despesas")
+    .select("*")
+    .eq("show_id", idShow)
+    .order("data_vencimento", { ascending: true });
+
+  if (error) {
+    console.error("Erro ao carregar despesas:", error);
+
+    listaDespesas.innerHTML = `
+            <tr>
+                <td colspan="6">Erro ao carregar despesas.</td>
+            </tr>
+        `;
+    return;
+  }
+
+  // Verifica se existem despesas
+  if (despesas.length === 0) {
+    listaDespesas.innerHTML = `
+            <tr>
+                <td colspan="6" class="tabela-vazia">
+                    Nenhuma despesa cadastrada.
+                </td>
+            </tr>
+        `;
+    return;
+  }
+
+  // Limpa a tabela
+  listaDespesas.innerHTML = "";
+
+  // Percorre as despesas encontradas
+  despesas.forEach(function (despesa) {
+    const linha = document.createElement("tr");
+
+    const dataFormatada = despesa.data_vencimento
+      ? new Date(despesa.data_vencimento + "T00:00:00").toLocaleDateString(
+          "pt-BR",
+        )
+      : "Não informada";
+
+    const valorFormatado = Number(despesa.valor).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+
+    const classeStatus =
+      despesa.status === "pago" ? "status-pago" : "status-pendente";
+
+    const statusFormatado = despesa.status === "pago" ? "Pago" : "Pendente";
+
+    linha.innerHTML = `
+            <td>${despesa.descricao}</td>
+            <td>${despesa.categoria || "Não informada"}</td>
+            <td>${dataFormatada}</td>
+            <td>${valorFormatado}</td>
+            <td>
+                <span class="status-despesa ${classeStatus}">
+                    ${statusFormatado}
+                </span>
+            </td>
             <td>-</td>
         `;
 
-        listaReceitas.appendChild(linha);
-    });
+    listaDespesas.appendChild(linha);
+  });
 }

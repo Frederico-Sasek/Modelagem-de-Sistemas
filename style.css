@@ -383,3 +383,52 @@ body {
     grid-template-columns: 1fr;
   }
 }
+/* Status das despesas */
+
+.status-despesa {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.status-pendente {
+  background-color: #78350f;
+  color: #fcd34d;
+}
+
+.status-pago {
+  background-color: #14532d;
+  color: #86efac;
+}
+/* Ações dos lançamentos */
+
+.btn-editar,
+.btn-excluir {
+    padding: 7px 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.btn-editar {
+    background-color: #1d4ed8;
+    color: white;
+}
+
+.btn-editar:hover {
+    background-color: #1e40af;
+}
+
+.btn-excluir {
+    background-color: #991b1b;
+    color: white;
+}
+
+.btn-excluir:hover {
+    background-color: #7f1d1d;
+}

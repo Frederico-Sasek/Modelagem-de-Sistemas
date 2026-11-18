@@ -102,35 +102,66 @@
         </form>
       </section>
       <section class="historico-section">
-    <div class="historico-header">
-        <div>
+        <div class="historico-header">
+          <div>
             <h2>Histórico de receitas</h2>
             <p>Todos os recebimentos deste show</p>
+          </div>
         </div>
-    </div>
 
-    <div class="tabela-container">
-        <table class="tabela-financeira">
+        <div class="tabela-container">
+          <table class="tabela-financeira">
             <thead>
-                <tr>
-                    <th>Descrição</th>
-                    <th>Categoria</th>
-                    <th>Data</th>
-                    <th>Valor</th>
-                    <th>Ações</th>
-                </tr>
+              <tr>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Data</th>
+                <th>Valor</th>
+                <th>Ações</th>
+              </tr>
             </thead>
 
             <tbody id="lista-receitas">
-                <tr>
-                    <td colspan="5" class="tabela-vazia">
-                        Nenhuma receita cadastrada.
-                    </td>
-                </tr>
+              <tr>
+                <td colspan="5" class="tabela-vazia">
+                  Nenhuma receita cadastrada.
+                </td>
+              </tr>
             </tbody>
-        </table>
-    </div>
-</section>
+          </table>
+        </div>
+      </section>
+      <section class="historico-section">
+        <div class="historico-header">
+          <div>
+            <h2>Histórico de despesas</h2>
+            <p>Contas e compromissos financeiros deste show</p>
+          </div>
+        </div>
+
+        <div class="tabela-container">
+          <table class="tabela-financeira">
+            <thead>
+              <tr>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Vencimento</th>
+                <th>Valor</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+
+            <tbody id="lista-despesas">
+              <tr>
+                <td colspan="6" class="tabela-vazia">
+                  Nenhuma despesa cadastrada.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
