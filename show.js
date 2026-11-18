@@ -163,7 +163,21 @@ formReceita.addEventListener("submit", async function (event) {
   };
 
   // Envia os dados para o Supabase
-  const { error } = await clienteSupabase.from("receitas").insert(novaReceita);
+  // Verifica se estamos editando ou cadastrando uma receita
+  let resultado;
+
+  if (window.idReceitaEditando) {
+    // Atualiza a receita existente
+    resultado = await clienteSupabase
+      .from("receitas")
+      .update(novaReceita)
+      .eq("id", window.idReceitaEditando);
+  } else {
+    // Cadastra uma nova receita
+    resultado = await clienteSupabase.from("receitas").insert(novaReceita);
+  }
+
+  const { error } = resultado;
 
   if (error) {
     console.error("Erro ao cadastrar receita:", error);
@@ -171,10 +185,21 @@ formReceita.addEventListener("submit", async function (event) {
     return;
   }
 
-  mensagemReceita.textContent = "Receita cadastrada com sucesso!";
+  if (window.idReceitaEditando) {
+    mensagemReceita.textContent = "Receita atualizada com sucesso!";
+  } else {
+    mensagemReceita.textContent = "Receita cadastrada com sucesso!";
+  }
 
   // Limpa o formulário
   formReceita.reset();
+
+  // Limpa o ID da edição
+  window.idReceitaEditando = null;
+
+  // Restaura o texto do botão
+  formReceita.querySelector("button[type='submit']").textContent =
+    "Cadastrar receita";
 
   // Atualiza os valores do resumo financeiro
   await carregarResumoFinanceiro();
@@ -212,17 +237,69 @@ formDespesa.addEventListener("submit", async function (event) {
   };
 
   // Salva no Supabase
-  const { error } = await clienteSupabase.from("despesas").insert(novaDespesa);
+  // Verifica se estamos editando ou cadastrando
+  let resultado;
 
-  if (error) {
-    console.error("Erro ao cadastrar despesa:", error);
-    mensagemDespesa.textContent = "Erro ao cadastrar despesa: " + error.message;
-    return;
+  if (window.idDespesaEditando) {
+    // Atualiza uma despesa existente
+    resultado = await clienteSupabase
+      .from("despesas")
+      .update(novaDespesa)
+      .eq("id", window.idDespesaEditando);
+  } else {
+    // Cadastra uma nova despesa
+    resultado = await clienteSupabase.from("despesas").insert(novaDespesa);
   }
 
-  mensagemDespesa.textContent = "Despesa cadastrada com sucesso!";
+  const { error } = resultado;
 
-  // Limpa os campos
+  if (window.idDespesaEditando) {
+    mensagemDespesa.textContent = "Despesa atualizada com sucesso!";
+  } else {
+    mensagemDespesa.textContent = "Despesa cadastrada com sucesso!";
+  }
+
+  // Limpa o formulário
+  formDespesa.reset();
+
+  // Limpa o ID da edição
+  window.idDespesaEditando = null;
+
+  // Restaura o texto do botão
+  formDespesa.querySelector("button[type='submit']").textContent =
+    "Cadastrar despesa";
+
+  // Atualiza os valores e o histórico
+  await carregarResumoFinanceiro();
+  await carregarDespesas();
+
+  // Limpa os campos// Exclui uma receita
+  async function excluirReceita(id) {
+    // Solicita confirmação do usuário
+    const confirmar = confirm("Tem certeza que deseja excluir esta receita?");
+
+    if (!confirmar) {
+      return;
+    }
+
+    // Exclui a receita do Supabase
+    const { error } = await clienteSupabase
+      .from("receitas")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Erro ao excluir receita:", error);
+      alert("Não foi possível excluir a receita.");
+      return;
+    }
+
+    alert("Receita excluída com sucesso!");
+
+    // Atualiza os valores e o histórico
+    await carregarResumoFinanceiro();
+    await carregarReceitas();
+  }
   formDespesa.reset();
 
   // Atualiza o resumo financeiro
@@ -364,13 +441,228 @@ async function carregarDespesas() {
             <td>${dataFormatada}</td>
             <td>${valorFormatado}</td>
             <td>
-                <span class="status-despesa ${classeStatus}">
-                    ${statusFormatado}
-                </span>
-            </td>
-            <td>-</td>
+    <span class="status-despesa ${classeStatus}">
+        ${statusFormatado}
+    </span>
+</td>
+
+<td>
+    <button class="btn-editar"
+        onclick="editarDespesa('${despesa.id}')">
+        Editar
+    </button>
+
+    ${
+      despesa.status === "pago"
+        ? `<button class="btn-editar"
+        onclick="reabrirDespesa('${despesa.id}')">
+        Reabrir
+    </button>`
+        : `<button class="btn-editar"
+        onclick="marcarDespesaPaga('${despesa.id}')">
+        Pagar
+    </button>`
+    }
+
+    <button class="btn-excluir"
+        onclick="excluirDespesa('${despesa.id}')">
+        Excluir
+    </button>
+</td>
         `;
 
     listaDespesas.appendChild(linha);
   });
+}
+
+// Edita uma receita
+async function editarReceita(id) {
+  // Busca os dados da receita selecionada
+  const { data: receita, error } = await clienteSupabase
+    .from("receitas")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("Erro ao buscar receita:", error);
+    alert("Não foi possível carregar a receita.");
+    return;
+  }
+
+  // Preenche o formulário com os dados encontrados
+  document.getElementById("descricao-receita").value = receita.descricao;
+
+  document.getElementById("categoria-receita").value = receita.categoria || "";
+
+  document.getElementById("valor-receita").value = receita.valor;
+
+  document.getElementById("data-receita").value = receita.data_recebimento;
+
+  // Guarda o ID da receita que será editada
+  window.idReceitaEditando = id;
+
+  // Altera o texto do botão
+  formReceita.querySelector("button[type='submit']").textContent =
+    "Salvar alterações";
+
+  // Leva o usuário até o formulário
+  formReceita.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+}
+
+// Exclui uma receita
+async function excluirReceita(id) {
+  // Solicita confirmação do usuário
+  const confirmar = confirm("Tem certeza que deseja excluir esta receita?");
+
+  if (!confirmar) {
+    return;
+  }
+
+  // Exclui a receita do Supabase
+  const { error } = await clienteSupabase
+    .from("receitas")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Erro ao excluir receita:", error);
+    alert("Não foi possível excluir a receita.");
+    return;
+  }
+
+  alert("Receita excluída com sucesso!");
+
+  // Atualiza os valores e o histórico
+  await carregarResumoFinanceiro();
+  await carregarReceitas();
+}
+
+// Marca uma despesa como paga
+async function marcarDespesaPaga(id) {
+  const confirmar = confirm("Deseja marcar esta despesa como paga?");
+
+  if (!confirmar) {
+    return;
+  }
+
+  // Obtém a data atual
+  const hoje = new Date().toLocaleDateString("en-CA");
+
+  // Atualiza a despesa no Supabase
+  const { error } = await clienteSupabase
+    .from("despesas")
+    .update({
+      status: "pago",
+      data_pagamento: hoje,
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Erro ao atualizar despesa:", error);
+    alert("Não foi possível atualizar a despesa.");
+    return;
+  }
+
+  alert("Despesa marcada como paga!");
+
+  // Atualiza o resumo e o histórico
+  await carregarResumoFinanceiro();
+  await carregarDespesas();
+}
+
+// Edita uma despesa
+async function editarDespesa(id) {
+  // Busca a despesa selecionada
+  const { data: despesa, error } = await clienteSupabase
+    .from("despesas")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("Erro ao buscar despesa:", error);
+    alert("Não foi possível carregar a despesa.");
+    return;
+  }
+
+  // Preenche o formulário
+  document.getElementById("descricao-despesa").value = despesa.descricao;
+
+  document.getElementById("categoria-despesa").value = despesa.categoria || "";
+
+  document.getElementById("valor-despesa").value = despesa.valor;
+
+  document.getElementById("vencimento-despesa").value =
+    despesa.data_vencimento || "";
+
+  // Guarda o ID da despesa em edição
+  window.idDespesaEditando = id;
+
+  // Altera o texto do botão
+  formDespesa.querySelector("button[type='submit']").textContent =
+    "Salvar alterações";
+
+  // Leva o usuário até o formulário
+  formDespesa.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+}
+
+// Exclui uma despesa
+async function excluirDespesa(id) {
+  const confirmar = confirm("Tem certeza que deseja excluir esta despesa?");
+
+  if (!confirmar) {
+    return;
+  }
+
+  const { error } = await clienteSupabase
+    .from("despesas")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Erro ao excluir despesa:", error);
+    alert("Não foi possível excluir a despesa.");
+    return;
+  }
+
+  alert("Despesa excluída com sucesso!");
+
+  // Atualiza o resumo e o histórico
+  await carregarResumoFinanceiro();
+  await carregarDespesas();
+}
+
+// Reabre uma despesa que foi marcada como paga
+async function reabrirDespesa(id) {
+  const confirmar = confirm("Deseja reabrir esta despesa?");
+
+  if (!confirmar) {
+    return;
+  }
+
+  const { error } = await clienteSupabase
+    .from("despesas")
+    .update({
+      status: "pendente",
+      data_pagamento: null,
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Erro ao reabrir despesa:", error);
+    alert("Não foi possível reabrir a despesa.");
+    return;
+  }
+
+  alert("Despesa reaberta com sucesso!");
+
+  await carregarResumoFinanceiro();
+  await carregarDespesas();
 }
