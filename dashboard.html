@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>ShowFinance | Painel</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <main class="dashboard-container">
+      <header class="dashboard-header">
+        <h1>ShowFinance</h1>
+        <div class="user-info">
+          <span id="usuario-email"></span>
+          <button id="btn-sair">Sair</button>
+        </div>
+      </header>
+
+      <section class="shows-section">
+        <h2>Meus Shows</h2>
+
+        <p>Selecione um show para consultar suas informações financeiras.</p>
+
+        <div id="lista-shows">
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="dashboard.js"></script>
+  </body>
+</html>

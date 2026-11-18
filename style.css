@@ -79,3 +79,47 @@ body {
   margin-top: 15px;
   font-size: 14px;
 }
+
+.dashboard-container {
+    min-height: 100vh;
+    padding: 30px;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #334155;
+}
+
+.dashboard-header h1 {
+    color: #22c55e;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+#btn-sair {
+    padding: 10px 20px;
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.shows-section {
+    margin-top: 40px;
+}
+
+.shows-section h2 {
+    margin-bottom: 12px;
+}
+
+.shows-section p {
+    color: #cbd5e1;
+}
