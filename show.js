@@ -1,5 +1,6 @@
 const SUPABASE_URL = "https://wwjhlteacweihhifblnl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_NgjeNxdm1gqLRbYjBkMo4w_LKsof79F";
+
 const clienteSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Identifica o show pelo endereço da página
@@ -8,7 +9,6 @@ const idShow = parametros.get("id");
 
 let graficoReceitas = null;
 let graficoDespesas = null;
-// Armazena a permissão do usuário no show atual
 let permissaoUsuario = null;
 
 // Elementos da página
@@ -23,6 +23,7 @@ document.getElementById("btn-voltar").addEventListener("click", function () {
   window.location.href = "dashboard.html";
 });
 
+// Busca a permissão do usuário no show
 async function carregarPermissaoUsuario(usuario, show) {
   // O criador do show é considerado administrador
   if (show.created_by === usuario.id) {
@@ -30,7 +31,6 @@ async function carregarPermissaoUsuario(usuario, show) {
     return;
   }
 
-  // Busca a permissão do colaborador neste show
   const { data, error } = await clienteSupabase
     .from("usuarios_shows")
     .select("permissao")
@@ -47,11 +47,12 @@ async function carregarPermissaoUsuario(usuario, show) {
   permissaoUsuario = data.permissao;
 }
 
+// Aplica as permissões na interface
 function aplicarPermissoesInterface() {
   const secaoEquipe = document.getElementById("secao-equipe");
 
   // Somente o administrador gerencia colaboradores
-  if (permissaoUsuario !== "administrador") {
+  if (permissaoUsuario !== "administrador" && secaoEquipe) {
     secaoEquipe.style.display = "none";
   }
 }
@@ -85,10 +86,8 @@ async function carregarShow() {
     return;
   }
 
-  // Identifica a permissão do usuário neste show
+  // Identifica a permissão do usuário
   await carregarPermissaoUsuario(usuarioData.user, show);
-
-  
 
   if (!permissaoUsuario) {
     mensagemShow.textContent =
@@ -97,7 +96,35 @@ async function carregarShow() {
   }
 
   console.log("Permissão do usuário:", permissaoUsuario);
+
+  // Aplica as restrições da interface
   aplicarPermissoesInterface();
+
+  // Carrega a equipe para administradores
+  if (permissaoUsuario === "administrador") {
+    await carregarColaboradores();
+  }
+
+  // Exibe os controles somente para administrador e organizador
+  const acoesShow = document.getElementById("acoes-show");
+
+  if (
+    permissaoUsuario === "administrador" ||
+    permissaoUsuario === "organizador"
+  ) {
+    acoesShow.style.display = "flex";
+  } else {
+    acoesShow.style.display = "none";
+  }
+
+  // Preenche o formulário com os dados atuais
+  document.getElementById("editar-nome-show").value = show.nome;
+
+  document.getElementById("editar-data-show").value = show.data_show;
+
+  document.getElementById("editar-local-show").value = show.local || "";
+
+  document.getElementById("editar-descricao-show").value = show.descricao || "";
 
   nomeShow.textContent = show.nome;
 
@@ -111,6 +138,7 @@ async function carregarShow() {
     "Descrição: " + (show.descricao || "Não informada");
 
   mensagemShow.textContent = "";
+
   await carregarResumoFinanceiro();
   await carregarReceitas();
   await carregarDespesas();
@@ -118,9 +146,8 @@ async function carregarShow() {
 
 carregarShow();
 
-// Calcula o resumo financeiro do show
+// Calcula o resumo financeiro
 async function carregarResumoFinanceiro() {
-  // Busca as receitas do show selecionado
   const { data: receitas, error: erroReceitas } = await clienteSupabase
     .from("receitas")
     .select("valor")
@@ -131,7 +158,6 @@ async function carregarResumoFinanceiro() {
     return;
   }
 
-  // Busca as despesas do show selecionado
   const { data: despesas, error: erroDespesas } = await clienteSupabase
     .from("despesas")
     .select("valor, status")
@@ -142,17 +168,14 @@ async function carregarResumoFinanceiro() {
     return;
   }
 
-  // Soma todas as receitas
   const totalReceitas = receitas.reduce(function (total, receita) {
     return total + Number(receita.valor);
   }, 0);
 
-  // Soma todas as despesas
   const totalDespesas = despesas.reduce(function (total, despesa) {
     return total + Number(despesa.valor);
   }, 0);
 
-  // Soma somente as despesas pendentes
   const totalPendentes = despesas.reduce(function (total, despesa) {
     if (despesa.status === "pendente") {
       return total + Number(despesa.valor);
@@ -161,10 +184,8 @@ async function carregarResumoFinanceiro() {
     return total;
   }, 0);
 
-  // Calcula o resultado financeiro
   const resultado = totalReceitas - totalDespesas;
 
-  // Formata os valores para reais
   function formatarMoeda(valor) {
     return valor.toLocaleString("pt-BR", {
       style: "currency",
@@ -172,7 +193,6 @@ async function carregarResumoFinanceiro() {
     });
   }
 
-  // Atualiza os indicadores na página
   document.getElementById("total-receitas").textContent =
     formatarMoeda(totalReceitas);
 
@@ -186,16 +206,15 @@ async function carregarResumoFinanceiro() {
     formatarMoeda(resultado);
 }
 
-// Cadastro de receitas
+// Cadastro e edição de receitas
 const formReceita = document.getElementById("form-receita");
 const mensagemReceita = document.getElementById("mensagem-receita");
 
 formReceita.addEventListener("submit", async function (event) {
   event.preventDefault();
 
-  mensagemReceita.textContent = "Cadastrando receita...";
+  mensagemReceita.textContent = "Salvando receita...";
 
-  // Identifica o usuário conectado
   const { data: usuarioData, error: usuarioError } =
     await clienteSupabase.auth.getUser();
 
@@ -204,71 +223,58 @@ formReceita.addEventListener("submit", async function (event) {
     return;
   }
 
-  // Reúne os dados preenchidos no formulário
   const novaReceita = {
     show_id: idShow,
     descricao: document.getElementById("descricao-receita").value,
     categoria: document.getElementById("categoria-receita").value,
     valor: Number(document.getElementById("valor-receita").value),
     data_recebimento: document.getElementById("data-receita").value,
-    created_by: usuarioData.user.id,
   };
 
-  // Envia os dados para o Supabase
-  // Verifica se estamos editando ou cadastrando uma receita
+  const estaEditando = Boolean(window.idReceitaEditando);
   let resultado;
 
-  if (window.idReceitaEditando) {
-    // Atualiza a receita existente
+  if (estaEditando) {
     resultado = await clienteSupabase
       .from("receitas")
       .update(novaReceita)
       .eq("id", window.idReceitaEditando);
   } else {
-    // Cadastra uma nova receita
-    resultado = await clienteSupabase.from("receitas").insert(novaReceita);
+    resultado = await clienteSupabase.from("receitas").insert({
+      ...novaReceita,
+      created_by: usuarioData.user.id,
+    });
   }
 
-  const { error } = resultado;
-
-  if (error) {
-    console.error("Erro ao cadastrar receita:", error);
-    mensagemReceita.textContent = "Erro ao cadastrar receita.";
+  if (resultado.error) {
+    console.error("Erro ao salvar receita:", resultado.error);
+    mensagemReceita.textContent = "Erro ao salvar receita.";
     return;
   }
 
-  if (window.idReceitaEditando) {
-    mensagemReceita.textContent = "Receita atualizada com sucesso!";
-  } else {
-    mensagemReceita.textContent = "Receita cadastrada com sucesso!";
-  }
+  mensagemReceita.textContent = estaEditando
+    ? "Receita atualizada com sucesso!"
+    : "Receita cadastrada com sucesso!";
 
-  // Limpa o formulário
   formReceita.reset();
-
-  // Limpa o ID da edição
   window.idReceitaEditando = null;
 
-  // Restaura o texto do botão
   formReceita.querySelector("button[type='submit']").textContent =
     "Cadastrar receita";
 
-  // Atualiza os valores do resumo financeiro
   await carregarResumoFinanceiro();
   await carregarReceitas();
-  await carregarDespesas();
 });
 
-// Cadastro de despesas
+// Cadastro e edição de despesas
 const formDespesa = document.getElementById("form-despesa");
 const mensagemDespesa = document.getElementById("mensagem-despesa");
 
 formDespesa.addEventListener("submit", async function (event) {
   event.preventDefault();
 
-  mensagemDespesa.textContent = "Cadastrando despesa...";
+  mensagemDespesa.textContent = "Salvando despesa...";
 
-  // Identifica o usuário conectado
   const { data: usuarioData, error: usuarioError } =
     await clienteSupabase.auth.getUser();
 
@@ -277,7 +283,6 @@ formDespesa.addEventListener("submit", async function (event) {
     return;
   }
 
-  // Reúne os dados da despesa
   const novaDespesa = {
     show_id: idShow,
     descricao: document.getElementById("descricao-despesa").value,
@@ -285,85 +290,47 @@ formDespesa.addEventListener("submit", async function (event) {
     valor: Number(document.getElementById("valor-despesa").value),
     data_vencimento:
       document.getElementById("vencimento-despesa").value || null,
-    created_by: usuarioData.user.id,
   };
 
-  // Salva no Supabase
-  // Verifica se estamos editando ou cadastrando
+  const estaEditando = Boolean(window.idDespesaEditando);
   let resultado;
 
-  if (window.idDespesaEditando) {
-    // Atualiza uma despesa existente
+  if (estaEditando) {
     resultado = await clienteSupabase
       .from("despesas")
       .update(novaDespesa)
       .eq("id", window.idDespesaEditando);
   } else {
-    // Cadastra uma nova despesa
-    resultado = await clienteSupabase.from("despesas").insert(novaDespesa);
+    resultado = await clienteSupabase.from("despesas").insert({
+      ...novaDespesa,
+      created_by: usuarioData.user.id,
+    });
   }
 
-  const { error } = resultado;
-
-  if (window.idDespesaEditando) {
-    mensagemDespesa.textContent = "Despesa atualizada com sucesso!";
-  } else {
-    mensagemDespesa.textContent = "Despesa cadastrada com sucesso!";
+  if (resultado.error) {
+    console.error("Erro ao salvar despesa:", resultado.error);
+    mensagemDespesa.textContent = "Não foi possível salvar a despesa.";
+    return;
   }
 
-  // Limpa o formulário
+  mensagemDespesa.textContent = estaEditando
+    ? "Despesa atualizada com sucesso!"
+    : "Despesa cadastrada com sucesso!";
+
   formDespesa.reset();
-
-  // Limpa o ID da edição
   window.idDespesaEditando = null;
 
-  // Restaura o texto do botão
   formDespesa.querySelector("button[type='submit']").textContent =
     "Cadastrar despesa";
 
-  // Atualiza os valores e o histórico
   await carregarResumoFinanceiro();
   await carregarDespesas();
-
-  // Limpa os campos// Exclui uma receita
-  async function excluirReceita(id) {
-    // Solicita confirmação do usuário
-    const confirmar = confirm("Tem certeza que deseja excluir esta receita?");
-
-    if (!confirmar) {
-      return;
-    }
-
-    // Exclui a receita do Supabase
-    const { error } = await clienteSupabase
-      .from("receitas")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      console.error("Erro ao excluir receita:", error);
-      alert("Não foi possível excluir a receita.");
-      return;
-    }
-
-    alert("Receita excluída com sucesso!");
-
-    // Atualiza os valores e o histórico
-    await carregarResumoFinanceiro();
-    await carregarReceitas();
-  }
-  formDespesa.reset();
-
-  // Atualiza o resumo financeiro
-  await carregarResumoFinanceiro();
-  await carregarReceitas();
 });
 
 // Carrega o histórico de receitas
 async function carregarReceitas() {
   const listaReceitas = document.getElementById("lista-receitas");
 
-  // Busca as receitas do show selecionado
   const { data: receitas, error } = await clienteSupabase
     .from("receitas")
     .select("*")
@@ -372,30 +339,28 @@ async function carregarReceitas() {
 
   if (error) {
     console.error("Erro ao carregar receitas:", error);
+
     listaReceitas.innerHTML = `
-            <tr>
-                <td colspan="5">Erro ao carregar receitas.</td>
-            </tr>
-        `;
+      <tr>
+        <td colspan="5">Erro ao carregar receitas.</td>
+      </tr>
+    `;
     return;
   }
 
-  // Verifica se existem receitas cadastradas
   if (receitas.length === 0) {
     listaReceitas.innerHTML = `
-            <tr>
-                <td colspan="5" class="tabela-vazia">
-                    Nenhuma receita cadastrada.
-                </td>
-            </tr>
-        `;
+      <tr>
+        <td colspan="5" class="tabela-vazia">
+          Nenhuma receita cadastrada.
+        </td>
+      </tr>
+    `;
     return;
   }
 
-  // Limpa a tabela antes de inserir os registros
   listaReceitas.innerHTML = "";
 
-  // Percorre todas as receitas encontradas
   receitas.forEach(function (receita) {
     const linha = document.createElement("tr");
 
@@ -409,32 +374,31 @@ async function carregarReceitas() {
     });
 
     linha.innerHTML = `
-            <td>${receita.descricao}</td>
-            <td>${receita.categoria || "Não informada"}</td>
-            <td>${dataFormatada}</td>
-            <td>${valorFormatado}</td>
-            <td>
+      <td>${receita.descricao}</td>
+      <td>${receita.categoria || "Não informada"}</td>
+      <td>${dataFormatada}</td>
+      <td>${valorFormatado}</td>
+      <td>
         <button class="btn-editar"
-            onclick="editarReceita('${receita.id}')">
-            Editar
+          onclick="editarReceita('${receita.id}')">
+          Editar
         </button>
 
         <button class="btn-excluir"
-            onclick="excluirReceita('${receita.id}')">
-            Excluir
+          onclick="excluirReceita('${receita.id}')">
+          Excluir
         </button>
-    </td>
-            
-        `;
+      </td>
+    `;
 
     listaReceitas.appendChild(linha);
   });
 }
+
 // Carrega o histórico de despesas
 async function carregarDespesas() {
   const listaDespesas = document.getElementById("lista-despesas");
 
-  // Busca as despesas do show selecionado
   const { data: despesas, error } = await clienteSupabase
     .from("despesas")
     .select("*")
@@ -445,29 +409,26 @@ async function carregarDespesas() {
     console.error("Erro ao carregar despesas:", error);
 
     listaDespesas.innerHTML = `
-            <tr>
-                <td colspan="6">Erro ao carregar despesas.</td>
-            </tr>
-        `;
+      <tr>
+        <td colspan="6">Erro ao carregar despesas.</td>
+      </tr>
+    `;
     return;
   }
 
-  // Verifica se existem despesas
   if (despesas.length === 0) {
     listaDespesas.innerHTML = `
-            <tr>
-                <td colspan="6" class="tabela-vazia">
-                    Nenhuma despesa cadastrada.
-                </td>
-            </tr>
-        `;
+      <tr>
+        <td colspan="6" class="tabela-vazia">
+          Nenhuma despesa cadastrada.
+        </td>
+      </tr>
+    `;
     return;
   }
 
-  // Limpa a tabela
   listaDespesas.innerHTML = "";
 
-  // Percorre as despesas encontradas
   despesas.forEach(function (despesa) {
     const linha = document.createElement("tr");
 
@@ -488,40 +449,39 @@ async function carregarDespesas() {
     const statusFormatado = despesa.status === "pago" ? "Pago" : "Pendente";
 
     linha.innerHTML = `
-            <td>${despesa.descricao}</td>
-            <td>${despesa.categoria || "Não informada"}</td>
-            <td>${dataFormatada}</td>
-            <td>${valorFormatado}</td>
-            <td>
-    <span class="status-despesa ${classeStatus}">
-        ${statusFormatado}
-    </span>
-</td>
+      <td>${despesa.descricao}</td>
+      <td>${despesa.categoria || "Não informada"}</td>
+      <td>${dataFormatada}</td>
+      <td>${valorFormatado}</td>
+      <td>
+        <span class="status-despesa ${classeStatus}">
+          ${statusFormatado}
+        </span>
+      </td>
+      <td>
+        <button class="btn-editar"
+          onclick="editarDespesa('${despesa.id}')">
+          Editar
+        </button>
 
-<td>
-    <button class="btn-editar"
-        onclick="editarDespesa('${despesa.id}')">
-        Editar
-    </button>
+        ${
+          despesa.status === "pago"
+            ? `<button class="btn-editar"
+                onclick="reabrirDespesa('${despesa.id}')">
+                Reabrir
+              </button>`
+            : `<button class="btn-editar"
+                onclick="marcarDespesaPaga('${despesa.id}')">
+                Pagar
+              </button>`
+        }
 
-    ${
-      despesa.status === "pago"
-        ? `<button class="btn-editar"
-        onclick="reabrirDespesa('${despesa.id}')">
-        Reabrir
-    </button>`
-        : `<button class="btn-editar"
-        onclick="marcarDespesaPaga('${despesa.id}')">
-        Pagar
-    </button>`
-    }
-
-    <button class="btn-excluir"
-        onclick="excluirDespesa('${despesa.id}')">
-        Excluir
-    </button>
-</td>
-        `;
+        <button class="btn-excluir"
+          onclick="excluirDespesa('${despesa.id}')">
+          Excluir
+        </button>
+      </td>
+    `;
 
     listaDespesas.appendChild(linha);
   });
@@ -529,7 +489,6 @@ async function carregarDespesas() {
 
 // Edita uma receita
 async function editarReceita(id) {
-  // Busca os dados da receita selecionada
   const { data: receita, error } = await clienteSupabase
     .from("receitas")
     .select("*")
@@ -542,7 +501,6 @@ async function editarReceita(id) {
     return;
   }
 
-  // Preenche o formulário com os dados encontrados
   document.getElementById("descricao-receita").value = receita.descricao;
 
   document.getElementById("categoria-receita").value = receita.categoria || "";
@@ -551,14 +509,11 @@ async function editarReceita(id) {
 
   document.getElementById("data-receita").value = receita.data_recebimento;
 
-  // Guarda o ID da receita que será editada
   window.idReceitaEditando = id;
 
-  // Altera o texto do botão
   formReceita.querySelector("button[type='submit']").textContent =
     "Salvar alterações";
 
-  // Leva o usuário até o formulário
   formReceita.scrollIntoView({
     behavior: "smooth",
     block: "center",
@@ -567,14 +522,10 @@ async function editarReceita(id) {
 
 // Exclui uma receita
 async function excluirReceita(id) {
-  // Solicita confirmação do usuário
   const confirmar = confirm("Tem certeza que deseja excluir esta receita?");
 
-  if (!confirmar) {
-    return;
-  }
+  if (!confirmar) return;
 
-  // Exclui a receita do Supabase
   const { error } = await clienteSupabase
     .from("receitas")
     .delete()
@@ -588,7 +539,6 @@ async function excluirReceita(id) {
 
   alert("Receita excluída com sucesso!");
 
-  // Atualiza os valores e o histórico
   await carregarResumoFinanceiro();
   await carregarReceitas();
 }
@@ -597,14 +547,10 @@ async function excluirReceita(id) {
 async function marcarDespesaPaga(id) {
   const confirmar = confirm("Deseja marcar esta despesa como paga?");
 
-  if (!confirmar) {
-    return;
-  }
+  if (!confirmar) return;
 
-  // Obtém a data atual
   const hoje = new Date().toLocaleDateString("en-CA");
 
-  // Atualiza a despesa no Supabase
   const { error } = await clienteSupabase
     .from("despesas")
     .update({
@@ -621,14 +567,12 @@ async function marcarDespesaPaga(id) {
 
   alert("Despesa marcada como paga!");
 
-  // Atualiza o resumo e o histórico
   await carregarResumoFinanceiro();
   await carregarDespesas();
 }
 
 // Edita uma despesa
 async function editarDespesa(id) {
-  // Busca a despesa selecionada
   const { data: despesa, error } = await clienteSupabase
     .from("despesas")
     .select("*")
@@ -641,7 +585,6 @@ async function editarDespesa(id) {
     return;
   }
 
-  // Preenche o formulário
   document.getElementById("descricao-despesa").value = despesa.descricao;
 
   document.getElementById("categoria-despesa").value = despesa.categoria || "";
@@ -651,14 +594,11 @@ async function editarDespesa(id) {
   document.getElementById("vencimento-despesa").value =
     despesa.data_vencimento || "";
 
-  // Guarda o ID da despesa em edição
   window.idDespesaEditando = id;
 
-  // Altera o texto do botão
   formDespesa.querySelector("button[type='submit']").textContent =
     "Salvar alterações";
 
-  // Leva o usuário até o formulário
   formDespesa.scrollIntoView({
     behavior: "smooth",
     block: "center",
@@ -669,9 +609,7 @@ async function editarDespesa(id) {
 async function excluirDespesa(id) {
   const confirmar = confirm("Tem certeza que deseja excluir esta despesa?");
 
-  if (!confirmar) {
-    return;
-  }
+  if (!confirmar) return;
 
   const { error } = await clienteSupabase
     .from("despesas")
@@ -686,18 +624,15 @@ async function excluirDespesa(id) {
 
   alert("Despesa excluída com sucesso!");
 
-  // Atualiza o resumo e o histórico
   await carregarResumoFinanceiro();
   await carregarDespesas();
 }
 
-// Reabre uma despesa que foi marcada como paga
+// Reabre uma despesa paga
 async function reabrirDespesa(id) {
   const confirmar = confirm("Deseja reabrir esta despesa?");
 
-  if (!confirmar) {
-    return;
-  }
+  if (!confirmar) return;
 
   const { error } = await clienteSupabase
     .from("despesas")
@@ -719,15 +654,15 @@ async function reabrirDespesa(id) {
   await carregarDespesas();
 }
 
-// Gera o relatório financeiro do show
+// Gera o relatório financeiro
 async function gerarRelatorio() {
   const dataInicial = document.getElementById("data-inicial-relatorio").value;
+
   const dataFinal = document.getElementById("data-final-relatorio").value;
 
   const resultadoRelatorio = document.getElementById("resultado-relatorio");
 
-  // Verifica se o período é válido
-  if (dataInicial > dataFinal) {
+  if (dataInicial && dataFinal && dataInicial > dataFinal) {
     resultadoRelatorio.textContent =
       "A data inicial não pode ser posterior à data final.";
     return;
@@ -735,7 +670,7 @@ async function gerarRelatorio() {
 
   resultadoRelatorio.textContent = "Gerando relatório...";
 
-  // Busca receitas do período
+  // Busca receitas
   let consultaReceitas = clienteSupabase
     .from("receitas")
     .select("valor, categoria")
@@ -757,7 +692,7 @@ async function gerarRelatorio() {
     return;
   }
 
-  // Busca despesas do período
+  // Busca despesas
   let consultaDespesas = clienteSupabase
     .from("despesas")
     .select("valor, status, categoria")
@@ -772,6 +707,7 @@ async function gerarRelatorio() {
   }
 
   const { data: despesas, error: erroDespesas } = await consultaDespesas;
+
   if (erroDespesas) {
     console.error("Erro ao buscar despesas:", erroDespesas);
     resultadoRelatorio.textContent = "Erro ao consultar as despesas.";
@@ -797,15 +733,14 @@ async function gerarRelatorio() {
 
   const resultado = totalReceitas - totalDespesas;
 
-  // Formata os valores em reais
   function formatarMoeda(valor) {
     return valor.toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
     });
   }
-  // Agrupa os valores das receitas por categoria
-  // Agrupa categorias iguais, ignorando espaços e diferenças de maiúsculas
+
+  // Agrupa categorias iguais
   function agruparPorCategoria(registros) {
     const categorias = new Map();
 
@@ -830,11 +765,9 @@ async function gerarRelatorio() {
     return Array.from(categorias.values());
   }
 
-  // Agrupa receitas e despesas
   const categoriasReceitas = agruparPorCategoria(receitas);
   const categoriasDespesas = agruparPorCategoria(despesas);
 
-  // Cores utilizadas nos gráficos
   const coresGraficos = [
     "#38bdf8",
     "#22c55e",
@@ -850,7 +783,7 @@ async function gerarRelatorio() {
     "#e879f9",
   ];
 
-  // Prepara os dados das receitas
+  // Dados do gráfico de receitas
   const dadosReceitas = {
     labels: categoriasReceitas.map((item) => item.nome),
     datasets: [
@@ -863,7 +796,7 @@ async function gerarRelatorio() {
     ],
   };
 
-  // Prepara os dados das despesas
+  // Dados do gráfico de despesas
   const dadosDespesas = {
     labels: categoriasDespesas.map((item) => item.nome),
     datasets: [
@@ -876,8 +809,11 @@ async function gerarRelatorio() {
     ],
   };
 
+  // Cria as legendas personalizadas
   function renderizarLegenda(grafico, idLegenda) {
     const elemento = document.getElementById(idLegenda);
+
+    if (!elemento) return;
 
     elemento.innerHTML = "";
 
@@ -907,7 +843,7 @@ async function gerarRelatorio() {
     });
   }
 
-  // Cria ou atualiza o gráfico de receitas
+  // Gráfico de receitas
   if (graficoReceitas) {
     graficoReceitas.data = dadosReceitas;
     graficoReceitas.update();
@@ -926,7 +862,7 @@ async function gerarRelatorio() {
     });
   }
 
-  // Cria ou atualiza o gráfico de despesas
+  // Gráfico de despesas
   if (graficoDespesas) {
     graficoDespesas.data = dadosDespesas;
     graficoDespesas.update();
@@ -945,13 +881,10 @@ async function gerarRelatorio() {
     });
   }
 
-  // Cria as legendas personalizadas
   renderizarLegenda(graficoReceitas, "legenda-receitas");
   renderizarLegenda(graficoDespesas, "legenda-despesas");
 
-  // Exibe os resultados
   // Atualiza os cards do relatório
-
   document.getElementById("relatorio-total-receitas").textContent =
     formatarMoeda(totalReceitas);
 
@@ -963,12 +896,16 @@ async function gerarRelatorio() {
 
   document.getElementById("relatorio-resultado").textContent =
     formatarMoeda(resultado);
+
+  resultadoRelatorio.textContent = "Relatório gerado com sucesso!";
 }
 
+// Botão para gerar relatório
 document
   .getElementById("btn-gerar-relatorio")
   .addEventListener("click", gerarRelatorio);
 
+// Botão para limpar relatório
 document
   .getElementById("btn-limpar-relatorio")
   .addEventListener("click", function () {
@@ -976,9 +913,12 @@ document
     document.getElementById("data-final-relatorio").value = "";
 
     document.getElementById("relatorio-total-receitas").textContent = "R$ 0,00";
+
     document.getElementById("relatorio-total-despesas").textContent = "R$ 0,00";
+
     document.getElementById("relatorio-total-pendentes").textContent =
       "R$ 0,00";
+
     document.getElementById("relatorio-resultado").textContent = "R$ 0,00";
 
     document.getElementById("resultado-relatorio").textContent =
@@ -1002,7 +942,6 @@ formConvidarUsuario.addEventListener("submit", async function (event) {
   mensagem.textContent = "Enviando convite...";
   botao.disabled = true;
 
-  // Chama a Edge Function do Supabase
   const { data, error } = await clienteSupabase.functions.invoke(
     "clever-processor",
     {
@@ -1025,12 +964,327 @@ formConvidarUsuario.addEventListener("submit", async function (event) {
     return;
   }
 
-  if (data.erro) {
+  if (data && data.erro) {
     mensagem.textContent = data.erro;
     return;
   }
 
-  mensagem.textContent = data.mensagem;
+  mensagem.textContent = data?.mensagem || "Convite enviado com sucesso!";
 
   formConvidarUsuario.reset();
 });
+
+// Abre o formulário de edição
+document.getElementById("btn-editar-show").addEventListener("click", () => {
+  if (
+    permissaoUsuario !== "administrador" &&
+    permissaoUsuario !== "organizador"
+  ) {
+    return;
+  }
+
+  document.getElementById("nome-show").style.display = "none";
+  document.getElementById("data-show").style.display = "none";
+  document.getElementById("local-show").style.display = "none";
+  document.getElementById("descricao-show").style.display = "none";
+
+  document.getElementById("acoes-show").style.display = "none";
+  document.getElementById("form-editar-show").style.display = "block";
+});
+
+// Cancela a edição
+document.getElementById("btn-cancelar-edicao").addEventListener("click", () => {
+  document.getElementById("form-editar-show").style.display = "none";
+
+  document.getElementById("nome-show").style.display = "";
+  document.getElementById("data-show").style.display = "";
+  document.getElementById("local-show").style.display = "";
+  document.getElementById("descricao-show").style.display = "";
+
+  document.getElementById("acoes-show").style.display = "flex";
+
+  document.getElementById("mensagem-edicao-show").textContent = "";
+});
+
+// Salva as alterações do show
+document
+  .getElementById("form-editar-show")
+  .addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (
+      permissaoUsuario !== "administrador" &&
+      permissaoUsuario !== "organizador"
+    ) {
+      return;
+    }
+
+    const mensagem = document.getElementById("mensagem-edicao-show");
+
+    const nome = document.getElementById("editar-nome-show").value.trim();
+    const data = document.getElementById("editar-data-show").value;
+    const local = document.getElementById("editar-local-show").value.trim();
+    const descricao = document
+      .getElementById("editar-descricao-show")
+      .value.trim();
+
+    if (!nome || !data) {
+      mensagem.textContent = "Preencha o nome e a data do show.";
+      return;
+    }
+
+    mensagem.textContent = "Salvando alterações...";
+
+    const { error } = await clienteSupabase
+      .from("shows")
+      .update({
+        nome: nome,
+        data_show: data,
+        local: local || null,
+        descricao: descricao || null,
+      })
+      .eq("id", idShow);
+
+    if (error) {
+      console.error("Erro ao atualizar show:", error);
+      mensagem.textContent = "Não foi possível salvar as alterações.";
+      return;
+    }
+
+    // Atualiza as informações exibidas na página
+    document.getElementById("nome-show").textContent = nome;
+
+    document.getElementById("data-show").textContent =
+      "Data: " + new Date(data + "T00:00:00").toLocaleDateString("pt-BR");
+
+    document.getElementById("local-show").textContent =
+      "Local: " + (local || "Não informado");
+
+    document.getElementById("descricao-show").textContent =
+      "Descrição: " + (descricao || "Não informada");
+
+    // Fecha o formulário e retorna à visualização
+    document.getElementById("form-editar-show").style.display = "none";
+
+    document.getElementById("nome-show").style.display = "";
+    document.getElementById("data-show").style.display = "";
+    document.getElementById("local-show").style.display = "";
+    document.getElementById("descricao-show").style.display = "";
+
+    document.getElementById("acoes-show").style.display = "flex";
+
+    mensagem.textContent = "";
+
+    alert("Show atualizado com sucesso!");
+  });
+
+// Exclui o show
+document
+  .getElementById("btn-excluir-show")
+  .addEventListener("click", async () => {
+    if (
+      permissaoUsuario !== "administrador" &&
+      permissaoUsuario !== "organizador"
+    ) {
+      return;
+    }
+
+    const confirmar = confirm(
+      "Tem certeza de que deseja excluir este show?\n\n" +
+        "Todas as receitas e despesas vinculadas também serão excluídas permanentemente.",
+    );
+
+    if (!confirmar) {
+      return;
+    }
+
+    const botaoExcluir = document.getElementById("btn-excluir-show");
+
+    botaoExcluir.disabled = true;
+    botaoExcluir.textContent = "Excluindo...";
+
+    const { error } = await clienteSupabase
+      .from("shows")
+      .delete()
+      .eq("id", idShow);
+
+    if (error) {
+      console.error("Erro ao excluir show:", error);
+
+      alert(
+        "Não foi possível excluir o show. Verifique as permissões e tente novamente.",
+      );
+
+      botaoExcluir.disabled = false;
+      botaoExcluir.textContent = "Excluir show";
+
+      return;
+    }
+
+    alert("Show excluído com sucesso!");
+
+    window.location.href = "dashboard.html";
+  });
+
+/* =====================================
+   GERENCIAMENTO DE COLABORADORES
+===================================== */
+
+// Carrega os colaboradores do show
+async function carregarColaboradores() {
+  const lista = document.getElementById("lista-colaboradores");
+  const mensagem = document.getElementById("mensagem-equipe");
+
+  mensagem.textContent = "Carregando colaboradores...";
+  lista.innerHTML = "";
+
+  const { data, error } = await clienteSupabase.functions.invoke(
+    "clever-processor",
+    {
+      body: {
+        acao: "listar",
+        show_id: idShow,
+      },
+    },
+  );
+
+  if (error || !data?.sucesso) {
+    console.error("Erro ao carregar colaboradores:", error || data);
+
+    mensagem.textContent =
+      data?.erro || "Não foi possível carregar os colaboradores.";
+
+    return;
+  }
+
+  const colaboradores = data.colaboradores || [];
+
+  if (colaboradores.length === 0) {
+    mensagem.textContent = "Nenhum colaborador cadastrado.";
+    return;
+  }
+
+  mensagem.textContent = "";
+
+  colaboradores.forEach((colaborador) => {
+    const item = document.createElement("div");
+    item.className = "colaborador-item";
+
+    const email = document.createElement("p");
+    email.className = "colaborador-email";
+    email.textContent = colaborador.email;
+
+    const permissao = document.createElement("select");
+    permissao.className = "seletor-permissao";
+
+    const opcoes = [
+      { valor: "administrador", texto: "Administrador" },
+      { valor: "organizador", texto: "Organizador" },
+      { valor: "financeiro", texto: "Financeiro" },
+    ];
+
+    opcoes.forEach((opcao) => {
+      const option = document.createElement("option");
+      option.value = opcao.valor;
+      option.textContent = opcao.texto;
+
+      permissao.appendChild(option);
+    });
+
+    permissao.value = colaborador.permissao;
+
+    const botoes = document.createElement("div");
+    botoes.className = "acoes-colaborador";
+
+    const btnSalvar = document.createElement("button");
+    btnSalvar.type = "button";
+    btnSalvar.textContent = "Salvar permissão";
+
+    btnSalvar.addEventListener("click", async () => {
+      if (permissao.value === colaborador.permissao) {
+        alert("A permissão selecionada já está definida.");
+        return;
+      }
+
+      const confirmar = confirm(
+        `Deseja alterar a permissão de ${colaborador.email} para ${permissao.options[permissao.selectedIndex].text}?`,
+      );
+
+      if (!confirmar) return;
+
+      btnSalvar.disabled = true;
+
+      const { data, error } = await clienteSupabase.functions.invoke(
+        "clever-processor",
+        {
+          body: {
+            acao: "alterar_permissao",
+            show_id: idShow,
+            usuario_id: colaborador.usuario_id,
+            permissao: permissao.value,
+          },
+        },
+      );
+
+      btnSalvar.disabled = false;
+
+      if (error || !data?.sucesso) {
+        console.error("Erro ao alterar permissão:", error || data);
+
+        alert(data?.erro || "Não foi possível alterar a permissão.");
+        return;
+      }
+
+      alert("Permissão alterada com sucesso!");
+
+      await carregarColaboradores();
+    });
+
+    const btnRemover = document.createElement("button");
+    btnRemover.type = "button";
+    btnRemover.textContent = "Remover";
+
+    btnRemover.addEventListener("click", async () => {
+      const confirmar = confirm(
+        `Tem certeza de que deseja remover ${colaborador.email} deste show?`,
+      );
+
+      if (!confirmar) return;
+
+      btnRemover.disabled = true;
+
+      const { data, error } = await clienteSupabase.functions.invoke(
+        "clever-processor",
+        {
+          body: {
+            acao: "remover",
+            show_id: idShow,
+            usuario_id: colaborador.usuario_id,
+          },
+        },
+      );
+
+      btnRemover.disabled = false;
+
+      if (error || !data?.sucesso) {
+        console.error("Erro ao remover colaborador:", error || data);
+
+        alert(data?.erro || "Não foi possível remover o colaborador.");
+        return;
+      }
+
+      alert("Colaborador removido com sucesso!");
+
+      await carregarColaboradores();
+    });
+
+    botoes.appendChild(btnSalvar);
+    botoes.appendChild(btnRemover);
+
+    item.appendChild(email);
+    item.appendChild(permissao);
+    item.appendChild(botoes);
+
+    lista.appendChild(item);
+  });
+}

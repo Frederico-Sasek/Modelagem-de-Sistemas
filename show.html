@@ -20,6 +20,36 @@
         <p id="local-show"></p>
         <p id="descricao-show"></p>
 
+        <!-- Ações de gerenciamento do show -->
+        <div id="acoes-show" class="acoes-show">
+          <button type="button" id="btn-editar-show">Editar show</button>
+
+          <button type="button" id="btn-excluir-show">Excluir show</button>
+        </div>
+
+        <!-- Formulário de edição -->
+        <form id="form-editar-show" style="display: none">
+          <h3>Editar informações do show</h3>
+
+          <label for="editar-nome-show">Nome do show</label>
+          <input type="text" id="editar-nome-show" required />
+
+          <label for="editar-data-show">Data do show</label>
+          <input type="date" id="editar-data-show" required />
+
+          <label for="editar-local-show">Local</label>
+          <input type="text" id="editar-local-show" />
+
+          <label for="editar-descricao-show">Descrição</label>
+          <textarea id="editar-descricao-show"></textarea>
+
+          <button type="submit">Salvar alterações</button>
+
+          <button type="button" id="btn-cancelar-edicao">Cancelar</button>
+
+          <p id="mensagem-edicao-show"></p>
+        </form>
+
         <section class="equipe-section" id="secao-equipe">
           <h2>Equipe do show</h2>
 
@@ -27,8 +57,10 @@
             Convide pessoas para acessar as informações financeiras deste show.
           </p>
 
+          <!-- Formulário de convite -->
           <form id="form-convidar-usuario">
             <label for="email-colaborador">E-mail do colaborador</label>
+
             <input
               type="email"
               id="email-colaborador"
@@ -37,6 +69,7 @@
             />
 
             <label for="permissao-colaborador">Permissão</label>
+
             <select id="permissao-colaborador" required>
               <option value="administrador">Administrador</option>
               <option value="financeiro">Financeiro</option>
@@ -47,6 +80,15 @@
 
             <p id="mensagem-convite"></p>
           </form>
+
+          <!-- Lista de colaboradores -->
+          <div class="lista-equipe-container">
+            <h3>Colaboradores deste show</h3>
+
+            <p id="mensagem-equipe">Carregando colaboradores...</p>
+
+            <div id="lista-colaboradores"></div>
+          </div>
         </section>
 
         <section class="financeiro-section">

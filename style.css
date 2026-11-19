@@ -877,6 +877,123 @@ body {
   line-height: 1.5;
 }
 
+/* Ações de gerenciamento do show */
+.acoes-show {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.acoes-show button,
+#form-editar-show button {
+  padding: 11px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* Botão editar */
+#btn-editar-show {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+#btn-editar-show:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+/* Botão excluir */
+#btn-excluir-show {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+#btn-excluir-show:hover {
+  background-color: #b91c1c;
+  transform: translateY(-2px);
+}
+
+/* Botões desabilitados */
+#btn-excluir-show:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Formulário de edição */
+#form-editar-show {
+  background-color: #1e293b;
+  padding: 22px;
+  border-radius: 12px;
+  margin: 20px 0;
+  max-width: 600px;
+}
+
+#form-editar-show h3 {
+  margin-bottom: 20px;
+}
+
+#form-editar-show label {
+  display: block;
+  margin: 12px 0 6px;
+  font-weight: bold;
+}
+
+#form-editar-show input,
+#form-editar-show textarea {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #475569;
+  border-radius: 7px;
+  background-color: #101827;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+}
+
+#form-editar-show textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Salvar alterações */
+#form-editar-show button[type="submit"] {
+  background-color: #16a34a;
+  color: #ffffff;
+  margin-top: 18px;
+}
+
+#form-editar-show button[type="submit"]:hover {
+  background-color: #15803d;
+}
+
+/* Cancelar edição */
+#btn-cancelar-edicao {
+  background-color: #475569;
+  color: #ffffff;
+  margin-top: 18px;
+}
+
+#btn-cancelar-edicao:hover {
+  background-color: #334155;
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+  .acoes-show {
+    flex-direction: column;
+  }
+
+  .acoes-show button,
+  #form-editar-show button {
+    width: 100%;
+  }
+}
+
 /* ========================================
    RESPONSIVIDADE
 ======================================== */
