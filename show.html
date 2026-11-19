@@ -163,62 +163,71 @@
         </div>
       </section>
       <section class="relatorios-section">
+        <div class="relatorios-header">
+          <h2>Relatório financeiro</h2>
+          <p>Acompanhe os resultados financeiros deste show.</p>
+        </div>
 
-    <div class="relatorios-header">
-        <h2>Relatório financeiro</h2>
-        <p>Acompanhe os resultados financeiros deste show.</p>
-    </div>
-
-    <div class="filtros-relatorio">
-        <div>
+        <div class="filtros-relatorio">
+          <div>
             <label for="data-inicial-relatorio">Data inicial</label>
-            <input type="date" id="data-inicial-relatorio">
-        </div>
+            <input type="date" id="data-inicial-relatorio" />
+          </div>
 
-        <div>
+          <div>
             <label for="data-final-relatorio">Data final</label>
-            <input type="date" id="data-final-relatorio">
+            <input type="date" id="data-final-relatorio" />
+          </div>
+
+          <button type="button" id="btn-gerar-relatorio">
+            Gerar relatório
+          </button>
+
+          <button type="button" id="btn-limpar-relatorio">
+            Limpar filtros
+          </button>
         </div>
 
-        <button type="button" id="btn-gerar-relatorio">
-            Gerar relatório
-        </button>
-
-        <button type="button" id="btn-limpar-relatorio">
-            Limpar filtros
-        </button>
-    </div>
-
-    <div class="relatorio-cards">
-
-        <div class="relatorio-card">
+        <div class="relatorio-cards">
+          <div class="relatorio-card">
             <h3>Total de receitas</h3>
             <p id="relatorio-total-receitas">R$ 0,00</p>
-        </div>
+          </div>
 
-        <div class="relatorio-card">
+          <div class="relatorio-card">
             <h3>Total de despesas</h3>
             <p id="relatorio-total-despesas">R$ 0,00</p>
-        </div>
+          </div>
 
-        <div class="relatorio-card">
+          <div class="relatorio-card">
             <h3>Despesas pendentes</h3>
             <p id="relatorio-total-pendentes">R$ 0,00</p>
-        </div>
+          </div>
 
-        <div class="relatorio-card">
+          <div class="relatorio-card">
             <h3>Resultado financeiro</h3>
             <p id="relatorio-resultado">R$ 0,00</p>
+          </div>
+
+          <div class="graficos-relatorio">
+            <div class="grafico-card">
+              <h3>Distribuição das receitas</h3>
+              <canvas id="grafico-receitas"></canvas>
+            </div>
+
+            <div class="grafico-card">
+              <h3>Distribuição das despesas</h3>
+              <canvas id="grafico-despesas"></canvas>
+            </div>
+          </div>
         </div>
 
-    </div>
-
-    <p id="resultado-relatorio"></p>
-
-</section>
+        <p id="resultado-relatorio"></p>
+      </section>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="show.js"></script>
   </body>
 </html>

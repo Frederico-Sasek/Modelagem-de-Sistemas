@@ -6,6 +6,9 @@ const clienteSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const parametros = new URLSearchParams(window.location.search);
 const idShow = parametros.get("id");
 
+let graficoReceitas = null;
+let graficoDespesas = null;
+
 // Elementos da página
 const nomeShow = document.getElementById("nome-show");
 const dataShow = document.getElementById("data-show");
@@ -674,12 +677,6 @@ async function gerarRelatorio() {
 
   const resultadoRelatorio = document.getElementById("resultado-relatorio");
 
-  // Verifica se as datas foram preenchidas
-  if (!dataInicial || !dataFinal) {
-    resultadoRelatorio.textContent = "Informe a data inicial e a data final.";
-    return;
-  }
-
   // Verifica se o período é válido
   if (dataInicial > dataFinal) {
     resultadoRelatorio.textContent =
@@ -690,12 +687,20 @@ async function gerarRelatorio() {
   resultadoRelatorio.textContent = "Gerando relatório...";
 
   // Busca receitas do período
-  const { data: receitas, error: erroReceitas } = await clienteSupabase
+  let consultaReceitas = clienteSupabase
     .from("receitas")
-    .select("valor")
-    .eq("show_id", idShow)
-    .gte("data_recebimento", dataInicial)
-    .lte("data_recebimento", dataFinal);
+    .select("valor, categoria")
+    .eq("show_id", idShow);
+
+  if (dataInicial) {
+    consultaReceitas = consultaReceitas.gte("data_recebimento", dataInicial);
+  }
+
+  if (dataFinal) {
+    consultaReceitas = consultaReceitas.lte("data_recebimento", dataFinal);
+  }
+
+  const { data: receitas, error: erroReceitas } = await consultaReceitas;
 
   if (erroReceitas) {
     console.error("Erro ao buscar receitas:", erroReceitas);
@@ -704,13 +709,20 @@ async function gerarRelatorio() {
   }
 
   // Busca despesas do período
-  const { data: despesas, error: erroDespesas } = await clienteSupabase
+  let consultaDespesas = clienteSupabase
     .from("despesas")
-    .select("valor, status")
-    .eq("show_id", idShow)
-    .gte("data_vencimento", dataInicial)
-    .lte("data_vencimento", dataFinal);
+    .select("valor, status, categoria")
+    .eq("show_id", idShow);
 
+  if (dataInicial) {
+    consultaDespesas = consultaDespesas.gte("data_vencimento", dataInicial);
+  }
+
+  if (dataFinal) {
+    consultaDespesas = consultaDespesas.lte("data_vencimento", dataFinal);
+  }
+
+  const { data: despesas, error: erroDespesas } = await consultaDespesas;
   if (erroDespesas) {
     console.error("Erro ao buscar despesas:", erroDespesas);
     resultadoRelatorio.textContent = "Erro ao consultar as despesas.";
@@ -741,6 +753,95 @@ async function gerarRelatorio() {
     return valor.toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
+    });
+  }
+  // Agrupa os valores das receitas por categoria
+  const categoriasReceitas = {};
+
+  receitas.forEach(function (receita) {
+    const categoria = receita.categoria || "Sem categoria";
+
+    if (!categoriasReceitas[categoria]) {
+      categoriasReceitas[categoria] = 0;
+    }
+
+    categoriasReceitas[categoria] += Number(receita.valor);
+  });
+
+  // Agrupa os valores das despesas por categoria
+  const categoriasDespesas = {};
+
+  despesas.forEach(function (despesa) {
+    const categoria = despesa.categoria || "Sem categoria";
+
+    if (!categoriasDespesas[categoria]) {
+      categoriasDespesas[categoria] = 0;
+    }
+
+    categoriasDespesas[categoria] += Number(despesa.valor);
+  });
+
+  // Prepara os dados do gráfico de receitas
+  const dadosReceitas = {
+    labels: Object.keys(categoriasReceitas),
+    datasets: [
+      {
+        data: Object.values(categoriasReceitas),
+      },
+    ],
+  };
+
+  // Prepara os dados do gráfico de despesas
+  const dadosDespesas = {
+    labels: Object.keys(categoriasDespesas),
+    datasets: [
+      {
+        data: Object.values(categoriasDespesas),
+      },
+    ],
+  };
+
+  // Cria ou atualiza o gráfico de receitas
+  if (graficoReceitas) {
+    graficoReceitas.data = dadosReceitas;
+    graficoReceitas.update();
+  } else {
+    graficoReceitas = new Chart(document.getElementById("grafico-receitas"), {
+      type: "doughnut",
+      data: dadosReceitas,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: {
+              color: "#ffffff",
+            },
+          },
+        },
+      },
+    });
+  }
+
+  // Cria ou atualiza o gráfico de despesas
+  if (graficoDespesas) {
+    graficoDespesas.data = dadosDespesas;
+    graficoDespesas.update();
+  } else {
+    graficoDespesas = new Chart(document.getElementById("grafico-despesas"), {
+      type: "doughnut",
+      data: dadosDespesas,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: {
+              color: "#ffffff",
+            },
+          },
+        },
+      },
     });
   }
 
