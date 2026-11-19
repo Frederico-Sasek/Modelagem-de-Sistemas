@@ -552,6 +552,13 @@ body {
   margin-bottom: 20px;
 }
 
+.grafico-card {
+  background-color: #1e293b;
+  padding: 25px;
+  border-radius: 12px;
+  min-width: 0;
+}
+
 .grafico-card canvas {
   max-width: 100%;
   max-height: 320px;
@@ -766,4 +773,60 @@ body {
   .card-definir-senha {
     padding: 25px;
   }
+}
+
+#resultado-relatorio {
+  display: none;
+}
+
+/* Legenda personalizada dos gráficos */
+
+.legenda-personalizada {
+  max-height: 130px;
+  overflow-y: auto;
+  margin-top: 15px;
+  padding: 10px;
+  border-top: 1px solid #334155;
+}
+
+.item-legenda {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.cor-legenda {
+  width: 11px;
+  height: 11px;
+  min-width: 11px;
+  border-radius: 3px;
+}
+
+.texto-legenda {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.valor-legenda {
+  color: #ffffff;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* Aparência da barra de rolagem */
+
+.legenda-personalizada::-webkit-scrollbar {
+  width: 6px;
+}
+
+.legenda-personalizada::-webkit-scrollbar-thumb {
+  background-color: #475569;
+  border-radius: 10px;
+}
+
+.legenda-personalizada::-webkit-scrollbar-track {
+  background-color: #0f172a;
 }

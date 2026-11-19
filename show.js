@@ -756,50 +756,107 @@ async function gerarRelatorio() {
     });
   }
   // Agrupa os valores das receitas por categoria
-  const categoriasReceitas = {};
+  // Agrupa categorias iguais, ignorando espaços e diferenças de maiúsculas
+  function agruparPorCategoria(registros) {
+    const categorias = new Map();
 
-  receitas.forEach(function (receita) {
-    const categoria = receita.categoria || "Sem categoria";
+    registros.forEach(function (registro) {
+      const nomeOriginal = (registro.categoria || "Sem categoria")
+        .trim()
+        .replace(/\s+/g, " ");
 
-    if (!categoriasReceitas[categoria]) {
-      categoriasReceitas[categoria] = 0;
-    }
+      const chave = nomeOriginal.toLocaleLowerCase("pt-BR");
+      const valor = Number(registro.valor);
 
-    categoriasReceitas[categoria] += Number(receita.valor);
-  });
+      if (categorias.has(chave)) {
+        categorias.get(chave).valor += valor;
+      } else {
+        categorias.set(chave, {
+          nome: nomeOriginal,
+          valor: valor,
+        });
+      }
+    });
 
-  // Agrupa os valores das despesas por categoria
-  const categoriasDespesas = {};
+    return Array.from(categorias.values());
+  }
 
-  despesas.forEach(function (despesa) {
-    const categoria = despesa.categoria || "Sem categoria";
+  // Agrupa receitas e despesas
+  const categoriasReceitas = agruparPorCategoria(receitas);
+  const categoriasDespesas = agruparPorCategoria(despesas);
 
-    if (!categoriasDespesas[categoria]) {
-      categoriasDespesas[categoria] = 0;
-    }
+  // Cores utilizadas nos gráficos
+  const coresGraficos = [
+    "#38bdf8",
+    "#22c55e",
+    "#f59e0b",
+    "#ef4444",
+    "#a78bfa",
+    "#ec4899",
+    "#14b8a6",
+    "#f97316",
+    "#6366f1",
+    "#84cc16",
+    "#06b6d4",
+    "#e879f9",
+  ];
 
-    categoriasDespesas[categoria] += Number(despesa.valor);
-  });
-
-  // Prepara os dados do gráfico de receitas
+  // Prepara os dados das receitas
   const dadosReceitas = {
-    labels: Object.keys(categoriasReceitas),
+    labels: categoriasReceitas.map((item) => item.nome),
     datasets: [
       {
-        data: Object.values(categoriasReceitas),
+        data: categoriasReceitas.map((item) => item.valor),
+        backgroundColor: categoriasReceitas.map(
+          (_, indice) => coresGraficos[indice % coresGraficos.length],
+        ),
       },
     ],
   };
 
-  // Prepara os dados do gráfico de despesas
+  // Prepara os dados das despesas
   const dadosDespesas = {
-    labels: Object.keys(categoriasDespesas),
+    labels: categoriasDespesas.map((item) => item.nome),
     datasets: [
       {
-        data: Object.values(categoriasDespesas),
+        data: categoriasDespesas.map((item) => item.valor),
+        backgroundColor: categoriasDespesas.map(
+          (_, indice) => coresGraficos[indice % coresGraficos.length],
+        ),
       },
     ],
   };
+
+  function renderizarLegenda(grafico, idLegenda) {
+    const elemento = document.getElementById(idLegenda);
+
+    elemento.innerHTML = "";
+
+    const dados = grafico.data.datasets[0];
+
+    grafico.data.labels.forEach(function (categoria, indice) {
+      const item = document.createElement("div");
+      item.className = "item-legenda";
+
+      const cor = document.createElement("span");
+      cor.className = "cor-legenda";
+      cor.style.backgroundColor = dados.backgroundColor[indice];
+
+      const nome = document.createElement("span");
+      nome.className = "texto-legenda";
+      nome.textContent = categoria;
+
+      const valor = document.createElement("span");
+      valor.className = "valor-legenda";
+      valor.textContent = formatarMoeda(dados.data[indice]);
+
+      item.appendChild(cor);
+      item.appendChild(nome);
+      item.appendChild(valor);
+
+      elemento.appendChild(item);
+    });
+  }
 
   // Cria ou atualiza o gráfico de receitas
   if (graficoReceitas) {
@@ -813,15 +870,13 @@ async function gerarRelatorio() {
         responsive: true,
         plugins: {
           legend: {
-            position: "bottom",
-            labels: {
-              color: "#ffffff",
-            },
+            display: false,
           },
         },
       },
     });
   }
+
 
   // Cria ou atualiza o gráfico de despesas
   if (graficoDespesas) {
@@ -835,28 +890,31 @@ async function gerarRelatorio() {
         responsive: true,
         plugins: {
           legend: {
-            position: "bottom",
-            labels: {
-              color: "#ffffff",
-            },
+            display: false,
           },
         },
       },
     });
   }
 
+  // Cria as legendas personalizadas
+  renderizarLegenda(graficoReceitas, "legenda-receitas");
+  renderizarLegenda(graficoDespesas, "legenda-despesas");
+
   // Exibe os resultados
-  resultadoRelatorio.innerHTML = `
-        <h3>Resultado do período</h3>
+  // Atualiza os cards do relatório
 
-        <p>Receitas: ${formatarMoeda(totalReceitas)}</p>
+  document.getElementById("relatorio-total-receitas").textContent =
+    formatarMoeda(totalReceitas);
 
-        <p>Despesas: ${formatarMoeda(totalDespesas)}</p>
+  document.getElementById("relatorio-total-despesas").textContent =
+    formatarMoeda(totalDespesas);
 
-        <p>Despesas pendentes: ${formatarMoeda(totalPendentes)}</p>
+  document.getElementById("relatorio-total-pendentes").textContent =
+    formatarMoeda(totalPendentes);
 
-        <h3>Resultado financeiro: ${formatarMoeda(resultado)}</h3>
-    `;
+  document.getElementById("relatorio-resultado").textContent =
+    formatarMoeda(resultado);
 }
 
 document
@@ -879,64 +937,52 @@ document
       "Filtros limpos.";
   });
 
-
 // Formulário de convite de colaboradores
-const formConvidarUsuario = document.getElementById(
-    "form-convidar-usuario"
-);
+const formConvidarUsuario = document.getElementById("form-convidar-usuario");
 
-formConvidarUsuario.addEventListener("submit", async function(event) {
-    event.preventDefault();
+formConvidarUsuario.addEventListener("submit", async function (event) {
+  event.preventDefault();
 
-    const email = document.getElementById(
-        "email-colaborador"
-    ).value.trim();
+  const email = document.getElementById("email-colaborador").value.trim();
 
-    const permissao = document.getElementById(
-        "permissao-colaborador"
-    ).value;
+  const permissao = document.getElementById("permissao-colaborador").value;
 
-    const mensagem = document.getElementById(
-        "mensagem-convite"
-    );
+  const mensagem = document.getElementById("mensagem-convite");
 
-    const botao = formConvidarUsuario.querySelector(
-        "button[type='submit']"
-    );
+  const botao = formConvidarUsuario.querySelector("button[type='submit']");
 
-    mensagem.textContent = "Enviando convite...";
-    botao.disabled = true;
+  mensagem.textContent = "Enviando convite...";
+  botao.disabled = true;
 
-    // Chama a Edge Function do Supabase
-    const { data, error } = await clienteSupabase.functions.invoke(
-        "clever-processor",
-        {
-            body: {
-                email: email,
-                show_id: idShow,
-                permissao: permissao
-            }
-        }
-    );
+  // Chama a Edge Function do Supabase
+  const { data, error } = await clienteSupabase.functions.invoke(
+    "clever-processor",
+    {
+      body: {
+        email: email,
+        show_id: idShow,
+        permissao: permissao,
+      },
+    },
+  );
 
-    botao.disabled = false;
+  botao.disabled = false;
 
-    if (error) {
-        console.error("Erro ao enviar convite:", error);
+  if (error) {
+    console.error("Erro ao enviar convite:", error);
 
-        mensagem.textContent =
-            "Não foi possível enviar o convite. Verifique o console.";
+    mensagem.textContent =
+      "Não foi possível enviar o convite. Verifique o console.";
 
-        return;
-    }
+    return;
+  }
 
-    if (data.erro) {
-        mensagem.textContent = data.erro;
-        return;
-    }
+  if (data.erro) {
+    mensagem.textContent = data.erro;
+    return;
+  }
 
-    mensagem.textContent = data.mensagem;
+  mensagem.textContent = data.mensagem;
 
-    formConvidarUsuario.reset();
+  formConvidarUsuario.reset();
 });
-
