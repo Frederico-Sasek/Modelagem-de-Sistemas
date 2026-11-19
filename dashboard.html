@@ -20,60 +20,36 @@
       </header>
 
       <section class="shows-section">
-        <section class="shows-section">
-          <h2>Meus Shows</h2>
+        <h2>Meus Shows</h2>
 
-          <p>Cadastre e gerencie seus eventos.</p>
+        <p>Cadastre e gerencie seus eventos.</p>
 
-          <div class="show-form-container">
-            <h3>Cadastrar novo show</h3>
+        <div class="show-form-container">
+          <h3>Cadastrar novo show</h3>
 
-            <form id="cadastro-show-form">
-              <div class="form-group">
-                <label for="nome-show">Nome do show</label>
-                <input
-                  type="text"
-                  id="nome-show"
-                  placeholder="Ex: Festival de Música"
-                  required
-                />
-              </div>
+          <form id="cadastro-show-form">
+            <label for="nome-show">Nome do show</label>
+            <input type="text" id="nome-show" required />
 
-              <div class="form-group">
-                <label for="data-show">Data do evento</label>
-                <input type="date" id="data-show" required />
-              </div>
+            <label for="data-show">Data do show</label>
+            <input type="date" id="data-show" required />
 
-              <div class="form-group">
-                <label for="local-show">Local</label>
-                <input
-                  type="text"
-                  id="local-show"
-                  placeholder="Local do evento"
-                />
-              </div>
+            <label for="local-show">Local</label>
+            <input type="text" id="local-show" />
 
-              <div class="form-group">
-                <label for="descricao-show">Descrição</label>
-                <textarea
-                  id="descricao-show"
-                  placeholder="Informações adicionais"
-                ></textarea>
-              </div>
+            <label for="descricao-show">Descrição</label>
+            <textarea id="descricao-show"></textarea>
 
-              <button type="submit">Cadastrar show</button>
+            <button type="submit">Cadastrar show</button>
 
-              <p id="mensagem-show"></p>
-            </form>
-          </div>
+            <p id="mensagem-show"></p>
+          </form>
+        </div>
 
-          <div class="shows-list-container">
-            <h3>Shows cadastrados</h3>
-
-            <div id="lista-shows"></div>
-          </div>
-        </section>
-        <div id="lista-shows"></div>
+        <div class="shows-list-container">
+          <h3>Shows cadastrados</h3>
+          <div id="lista-shows"></div>
+        </div>
       </section>
     </main>
 

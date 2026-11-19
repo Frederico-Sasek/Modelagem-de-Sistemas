@@ -6,6 +6,9 @@ const mensagemShow = document.getElementById("mensagem-show");
 const listaShows = document.getElementById("lista-shows");
 const botaoSair = document.getElementById("btn-sair");
 
+let usuarioAtual = null;
+let podeCriarShows = false;
+
 //verificar se exxiste usuario
 async function verificarUsuario() {
   const { data, error } = await clienteSupabase.auth.getUser();
@@ -15,7 +18,48 @@ async function verificarUsuario() {
     return;
   }
 
-  document.getElementById("usuario-email").textContent = data.user.email;
+  usuarioAtual = data.user;
+
+  document.getElementById("usuario-email").textContent = usuarioAtual.email;
+
+  // Busca as permissões do usuário nos shows
+  const { data: acessos, error: erroAcessos } = await clienteSupabase
+    .from("usuarios_shows")
+    .select("permissao")
+    .eq("usuario_id", usuarioAtual.id);
+
+  if (erroAcessos) {
+    console.error("Erro ao consultar permissões:", erroAcessos);
+    return;
+  }
+
+  // Verifica se o usuário é criador de algum show
+  const { data: shows, error: erroShows } = await clienteSupabase
+    .from("shows")
+    .select("id, created_by");
+
+  if (erroShows) {
+    console.error("Erro ao consultar shows:", erroShows);
+    return;
+  }
+
+  const eCriador = shows.some((show) => show.created_by === usuarioAtual.id);
+
+  const eAdministradorOuOrganizador = acessos.some(
+    (acesso) =>
+      acesso.permissao === "administrador" ||
+      acesso.permissao === "organizador",
+  );
+
+  podeCriarShows =
+    acessos.length === 0 || eCriador || eAdministradorOuOrganizador;
+
+  const formularioContainer = document.querySelector(".show-form-container");
+
+  // Esconde o formulário se não puder cadastrar
+  if (!podeCriarShows) {
+    document.querySelector(".show-form-container").style.display = "none";
+  }
 }
 
 verificarUsuario();
@@ -35,6 +79,11 @@ botaoSair.addEventListener("click", async function () {
 //cadastra novos shows
 formularioShow.addEventListener("submit", async function (event) {
   event.preventDefault();
+  if (!podeCriarShows) {
+    mensagemShow.textContent = "Você não tem permissão para cadastrar shows.";
+    mensagemShow.style.color = "red";
+    return;
+  }
   const nome = document.getElementById("nome-show").value.trim();
   const dataShow = document.getElementById("data-show").value;
   const local = document.getElementById("local-show").value.trim();
@@ -67,7 +116,7 @@ formularioShow.addEventListener("submit", async function (event) {
   }
 });
 
-//mostra os shws existentes no banco de dados
+//mostra os shows existentes no banco de dados
 async function carregarShows() {
   const { data: shows, error } = await clienteSupabase
     .from("shows")
@@ -82,38 +131,32 @@ async function carregarShows() {
   listaShows.innerHTML = "";
 
   shows.forEach(function (show) {
-    shows.forEach(function (show) {
-      const card = document.createElement("div");
-      card.className = "show-card";
+    const card = document.createElement("div");
+    card.className = "show-card";
 
-      const titulo = document.createElement("h4");
-      titulo.textContent = show.nome;
+    const titulo = document.createElement("h4");
+    titulo.textContent = show.nome;
 
-      const data = document.createElement("p");
-      data.textContent = "Data: " + show.data_show;
+    const data = document.createElement("p");
+    data.textContent = "Data: " + show.data_show;
 
-      const local = document.createElement("p");
-      local.textContent = "Local: " + (show.local || "Não informado");
+    const local = document.createElement("p");
+    local.textContent = "Local: " + (show.local || "Não informado");
 
-      // Criar o botão
-      const botaoAbrir = document.createElement("button");
-      botaoAbrir.id = "btn-abrir"
-      botaoAbrir.textContent = "Abrir show";
+    const botaoAbrir = document.createElement("button");
+    botaoAbrir.textContent = "Abrir show";
+    botaoAbrir.id = "btn-abrir";
 
-      // Definir o que acontece ao clicar
-      botaoAbrir.addEventListener("click", function () {
-        window.location.href = "show.html?id=" + show.id;
-      });
-
-      // Adicionar os elementos ao card
-      card.appendChild(titulo);
-      card.appendChild(data);
-      card.appendChild(local);
-      card.appendChild(botaoAbrir);
-
-      // Adicionar o card à lista
-      listaShows.appendChild(card);
+    botaoAbrir.addEventListener("click", function () {
+      window.location.href = "show.html?id=" + show.id;
     });
+
+    card.appendChild(titulo);
+    card.appendChild(data);
+    card.appendChild(local);
+    card.appendChild(botaoAbrir);
+
+    listaShows.appendChild(card);
   });
 }
 

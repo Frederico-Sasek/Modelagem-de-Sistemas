@@ -1,3 +1,7 @@
+/* ========================================
+   CONFIGURAÇÕES GERAIS
+======================================== */
+
 * {
   margin: 0;
   padding: 0;
@@ -10,7 +14,10 @@ body {
   color: #ffffff;
 }
 
-/*tela inicial de login*/
+/* ========================================
+   TELA DE LOGIN
+======================================== */
+
 .login-container {
   min-height: 100vh;
   display: flex;
@@ -33,7 +40,7 @@ body {
 }
 
 .login-header h1 {
-  color: rgb(0, 251, 0);
+  color: #22c55e;
   margin-bottom: 10px;
 }
 
@@ -63,16 +70,17 @@ body {
 .login-card button {
   width: 100%;
   padding: 13px;
-  background-color: green;
+  background-color: #22c55e;
   color: #ffffff;
   border: none;
   border-radius: 6px;
   font-size: 16px;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .login-card button:hover {
-  background-color: #1626a3;
+  background-color: #16a34a;
 }
 
 #mensagem-login {
@@ -81,7 +89,10 @@ body {
   font-size: 14px;
 }
 
-/*estilo da pagina dashboard*/
+/* ========================================
+   DASHBOARD
+======================================== */
+
 .dashboard-container {
   min-height: 100vh;
   padding: 30px;
@@ -112,7 +123,14 @@ body {
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
+
+#btn-sair:hover {
+  background-color: #b91c1c;
+}
+
+/* Seção dos shows */
 
 .shows-section {
   margin-top: 40px;
@@ -122,51 +140,100 @@ body {
   margin-bottom: 12px;
 }
 
-.shows-section p {
+.shows-section > p {
   color: #cbd5e1;
+  line-height: 1.5;
 }
+
+/* ========================================
+   CADASTRO DE SHOWS
+======================================== */
 
 .show-form-container {
   background-color: #1e293b;
-  padding: 25px;
+  padding: 30px;
   border-radius: 12px;
   margin-top: 25px;
-  max-width: 600px;
+  max-width: 650px;
+  border: 1px solid #334155;
 }
 
-.show-form-container h3,
-.shows-list-container h3 {
-  margin-bottom: 20px;
+.show-form-container h3 {
+  margin-bottom: 25px;
+  color: #ffffff;
+  font-size: 20px;
+}
+
+.show-form-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.show-form-container label {
+  color: #cbd5e1;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 8px;
 }
 
 .show-form-container input,
 .show-form-container textarea {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #475569;
-  border-radius: 6px;
+  padding: 13px;
+  border: 1px solid #334155;
+  border-radius: 8px;
   background-color: #0f172a;
   color: white;
   font-family: Arial, sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.show-form-container input:focus,
+.show-form-container textarea:focus {
+  border-color: #22c55e;
 }
 
 .show-form-container textarea {
-  min-height: 100px;
+  min-height: 110px;
   resize: vertical;
 }
 
 .show-form-container button {
   width: 100%;
-  padding: 13px;
+  padding: 14px;
+  margin-top: 12px;
   background-color: #22c55e;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
+
+.show-form-container button:hover {
+  background-color: #16a34a;
+}
+
+.show-form-container #mensagem-show {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+/* ========================================
+   LISTA DE SHOWS
+======================================== */
 
 .shows-list-container {
   margin-top: 40px;
+}
+
+.shows-list-container h3 {
+  margin-bottom: 20px;
 }
 
 .show-card {
@@ -174,6 +241,7 @@ body {
   padding: 20px;
   border-radius: 10px;
   margin-bottom: 15px;
+  border: 1px solid #334155;
 }
 
 .show-card h4 {
@@ -181,24 +249,46 @@ body {
   margin-bottom: 10px;
 }
 
+.show-card p {
+  color: #cbd5e1;
+  margin-bottom: 8px;
+}
+
 #btn-abrir {
-  padding: 5px 10px;
+  padding: 9px 15px;
+  margin-top: 10px;
   background-color: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#btn-abrir:hover {
+  background-color: #16a34a;
+}
+
+/* ========================================
+   ABA DE SHOWS
+======================================== */
+
+#btn-voltar {
+  padding: 8px 15px;
+  background-color: #dc2626;
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
 }
 
-/*aba de shows*/
-#btn-voltar {
-  padding: 5px 10px;
-  background-color: red;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+#btn-voltar:hover {
+  background-color: #b91c1c;
 }
+
+/* ========================================
+   RESUMO FINANCEIRO
+======================================== */
 
 .financeiro-section {
   margin-top: 35px;
@@ -231,12 +321,9 @@ body {
   color: white;
 }
 
-@media (max-width: 600px) {
-  .financeiro-cards {
-    grid-template-columns: 1fr;
-  }
-}
-/* Histórico financeiro */
+/* ========================================
+   HISTÓRICO FINANCEIRO
+======================================== */
 
 .historico-section {
   margin-top: 40px;
@@ -303,7 +390,10 @@ body {
   color: #94a3b8 !important;
   padding: 30px !important;
 }
-/* Seções de cadastro */
+
+/* ========================================
+   SEÇÕES DE CADASTRO FINANCEIRO
+======================================== */
 
 .cadastro-section {
   margin-top: 35px;
@@ -317,8 +407,6 @@ body {
   color: white;
 }
 
-/* Organização dos campos */
-
 .cadastro-section form {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -330,8 +418,6 @@ body {
   font-size: 14px;
   font-weight: 500;
 }
-
-/* Campos de preenchimento */
 
 .cadastro-section input {
   width: 100%;
@@ -347,8 +433,6 @@ body {
 .cadastro-section input:focus {
   border-color: #38bdf8;
 }
-
-/* Botões */
 
 .cadastro-section button {
   grid-column: 1 / -1;
@@ -368,22 +452,15 @@ body {
   background-color: #1d4ed8;
 }
 
-/* Mensagens */
-
 .cadastro-section p {
   grid-column: 1 / -1;
   color: #94a3b8;
   font-size: 14px;
 }
 
-/* Responsividade */
-
-@media (max-width: 600px) {
-  .cadastro-section form {
-    grid-template-columns: 1fr;
-  }
-}
-/* Status das despesas */
+/* ========================================
+   STATUS DAS DESPESAS
+======================================== */
 
 .status-despesa {
   display: inline-block;
@@ -402,7 +479,10 @@ body {
   background-color: #14532d;
   color: #86efac;
 }
-/* Ações dos lançamentos */
+
+/* ========================================
+   AÇÕES DOS LANÇAMENTOS
+======================================== */
 
 .btn-editar,
 .btn-excluir {
@@ -432,7 +512,11 @@ body {
 .btn-excluir:hover {
   background-color: #7f1d1d;
 }
-/* Área de relatórios */
+
+/* ========================================
+   RELATÓRIOS
+======================================== */
+
 .relatorios-section {
   margin-top: 40px;
   background-color: #1e293b;
@@ -455,6 +539,7 @@ body {
 }
 
 /* Filtros */
+
 .filtros-relatorio {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -496,6 +581,7 @@ body {
 }
 
 /* Indicadores */
+
 .relatorio-cards {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -526,12 +612,13 @@ body {
   font-size: 14px;
 }
 
-@media (max-width: 600px) {
-  .filtros-relatorio,
-  .relatorio-cards {
-    grid-template-columns: 1fr;
-  }
+#resultado-relatorio {
+  display: none;
 }
+
+/* ========================================
+   GRÁFICOS
+======================================== */
 
 .graficos-relatorio {
   display: grid;
@@ -552,25 +639,65 @@ body {
   margin-bottom: 20px;
 }
 
-.grafico-card {
-  background-color: #1e293b;
-  padding: 25px;
-  border-radius: 12px;
-  min-width: 0;
-}
-
 .grafico-card canvas {
   max-width: 100%;
   max-height: 320px;
 }
 
-@media (max-width: 700px) {
-  .graficos-relatorio {
-    grid-template-columns: 1fr;
-  }
+/* Legenda personalizada */
+
+.legenda-personalizada {
+  max-height: 130px;
+  overflow-y: auto;
+  margin-top: 15px;
+  padding: 10px;
+  border-top: 1px solid #334155;
 }
 
-/* SEÇÃO DA EQUIPE */
+.item-legenda {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.cor-legenda {
+  width: 11px;
+  height: 11px;
+  min-width: 11px;
+  border-radius: 3px;
+}
+
+.texto-legenda {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.valor-legenda {
+  color: #ffffff;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.legenda-personalizada::-webkit-scrollbar {
+  width: 6px;
+}
+
+.legenda-personalizada::-webkit-scrollbar-thumb {
+  background-color: #475569;
+  border-radius: 10px;
+}
+
+.legenda-personalizada::-webkit-scrollbar-track {
+  background-color: #0f172a;
+}
+
+/* ========================================
+   EQUIPE E COLABORADORES
+======================================== */
+
 .equipe-section {
   margin-top: 35px;
   padding: 30px;
@@ -589,7 +716,8 @@ body {
   line-height: 1.5;
 }
 
-/* FORMULÁRIO DE CONVITE */
+/* Formulário de convite */
+
 #form-convidar-usuario {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -611,7 +739,6 @@ body {
   border-radius: 8px;
   color: #ffffff;
   font-size: 14px;
-  box-sizing: border-box;
 }
 
 #form-convidar-usuario input:focus,
@@ -642,7 +769,6 @@ body {
   cursor: not-allowed;
 }
 
-/* MENSAGEM DO CONVITE */
 #mensagem-convite {
   grid-column: 1 / -1;
   color: #34d399;
@@ -650,24 +776,9 @@ body {
   margin-top: 5px;
 }
 
-/* RESPONSIVIDADE */
-@media (max-width: 600px) {
-  .equipe-section {
-    padding: 20px;
-  }
-
-  #form-convidar-usuario {
-    grid-template-columns: 1fr;
-  }
-
-  #form-convidar-usuario button,
-  #mensagem-convite {
-    grid-column: 1;
-  }
-}
-/*definir senha*/
-
-/* TELA DE DEFINIÇÃO DE SENHA */
+/* ========================================
+   DEFINIÇÃO DE SENHA
+======================================== */
 
 .pagina-definir-senha {
   min-height: 100vh;
@@ -676,7 +787,6 @@ body {
   align-items: center;
   padding: 20px;
   background-color: #0f172a;
-  box-sizing: border-box;
 }
 
 .card-definir-senha {
@@ -685,7 +795,6 @@ body {
   padding: 40px;
   background-color: #1e293b;
   border-radius: 14px;
-  box-sizing: border-box;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
@@ -734,7 +843,6 @@ body {
   border-radius: 8px;
   color: #ffffff;
   font-size: 14px;
-  box-sizing: border-box;
 }
 
 .campo-senha input:focus {
@@ -769,64 +877,76 @@ body {
   line-height: 1.5;
 }
 
-@media (max-width: 500px) {
-  .card-definir-senha {
-    padding: 25px;
+/* ========================================
+   RESPONSIVIDADE
+======================================== */
+
+@media (max-width: 700px) {
+  .graficos-relatorio {
+    grid-template-columns: 1fr;
   }
 }
 
-#resultado-relatorio {
-  display: none;
-}
+@media (max-width: 600px) {
+  /* Dashboard */
 
-/* Legenda personalizada dos gráficos */
+  .dashboard-container {
+    padding: 18px;
+  }
 
-.legenda-personalizada {
-  max-height: 130px;
-  overflow-y: auto;
-  margin-top: 15px;
-  padding: 10px;
-  border-top: 1px solid #334155;
-}
+  .dashboard-header {
+    gap: 15px;
+    flex-wrap: wrap;
+  }
 
-.item-legenda {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 4px;
-  color: #cbd5e1;
-  font-size: 13px;
-}
+  .user-info {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
 
-.cor-legenda {
-  width: 11px;
-  height: 11px;
-  min-width: 11px;
-  border-radius: 3px;
-}
+  /* Formulário de shows */
 
-.texto-legenda {
-  flex: 1;
-  overflow-wrap: anywhere;
-}
+  .show-form-container {
+    padding: 20px;
+  }
 
-.valor-legenda {
-  color: #ffffff;
-  font-weight: bold;
-  white-space: nowrap;
-}
+  /* Financeiro */
 
-/* Aparência da barra de rolagem */
+  .financeiro-cards {
+    grid-template-columns: 1fr;
+  }
 
-.legenda-personalizada::-webkit-scrollbar {
-  width: 6px;
-}
+  /* Cadastro financeiro */
 
-.legenda-personalizada::-webkit-scrollbar-thumb {
-  background-color: #475569;
-  border-radius: 10px;
-}
+  .cadastro-section form {
+    grid-template-columns: 1fr;
+  }
 
-.legenda-personalizada::-webkit-scrollbar-track {
-  background-color: #0f172a;
+  /* Relatórios */
+
+  .filtros-relatorio,
+  .relatorio-cards {
+    grid-template-columns: 1fr;
+  }
+
+  /* Equipe */
+
+  .equipe-section {
+    padding: 20px;
+  }
+
+  #form-convidar-usuario {
+    grid-template-columns: 1fr;
+  }
+
+  #form-convidar-usuario button,
+  #mensagem-convite {
+    grid-column: 1;
+  }
+
+  /* Definição de senha */
+
+  .card-definir-senha {
+    padding: 25px;
+  }
 }

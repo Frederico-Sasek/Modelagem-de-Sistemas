@@ -8,6 +8,8 @@ const idShow = parametros.get("id");
 
 let graficoReceitas = null;
 let graficoDespesas = null;
+// Armazena a permissão do usuário no show atual
+let permissaoUsuario = null;
 
 // Elementos da página
 const nomeShow = document.getElementById("nome-show");
@@ -20,6 +22,39 @@ const mensagemShow = document.getElementById("mensagem-show");
 document.getElementById("btn-voltar").addEventListener("click", function () {
   window.location.href = "dashboard.html";
 });
+
+async function carregarPermissaoUsuario(usuario, show) {
+  // O criador do show é considerado administrador
+  if (show.created_by === usuario.id) {
+    permissaoUsuario = "administrador";
+    return;
+  }
+
+  // Busca a permissão do colaborador neste show
+  const { data, error } = await clienteSupabase
+    .from("usuarios_shows")
+    .select("permissao")
+    .eq("show_id", idShow)
+    .eq("usuario_id", usuario.id)
+    .single();
+
+  if (error || !data) {
+    console.error("Erro ao consultar permissão:", error);
+    permissaoUsuario = null;
+    return;
+  }
+
+  permissaoUsuario = data.permissao;
+}
+
+function aplicarPermissoesInterface() {
+  const secaoEquipe = document.getElementById("secao-equipe");
+
+  // Somente o administrador gerencia colaboradores
+  if (permissaoUsuario !== "administrador") {
+    secaoEquipe.style.display = "none";
+  }
+}
 
 // Busca os dados do show
 async function carregarShow() {
@@ -49,6 +84,20 @@ async function carregarShow() {
     mensagemShow.textContent = "Não foi possível carregar este show.";
     return;
   }
+
+  // Identifica a permissão do usuário neste show
+  await carregarPermissaoUsuario(usuarioData.user, show);
+
+  
+
+  if (!permissaoUsuario) {
+    mensagemShow.textContent =
+      "Você não possui uma permissão válida para acessar este show.";
+    return;
+  }
+
+  console.log("Permissão do usuário:", permissaoUsuario);
+  aplicarPermissoesInterface();
 
   nomeShow.textContent = show.nome;
 
@@ -876,7 +925,6 @@ async function gerarRelatorio() {
       },
     });
   }
-
 
   // Cria ou atualiza o gráfico de despesas
   if (graficoDespesas) {
