@@ -878,3 +878,65 @@ document
     document.getElementById("resultado-relatorio").textContent =
       "Filtros limpos.";
   });
+
+
+// Formulário de convite de colaboradores
+const formConvidarUsuario = document.getElementById(
+    "form-convidar-usuario"
+);
+
+formConvidarUsuario.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const email = document.getElementById(
+        "email-colaborador"
+    ).value.trim();
+
+    const permissao = document.getElementById(
+        "permissao-colaborador"
+    ).value;
+
+    const mensagem = document.getElementById(
+        "mensagem-convite"
+    );
+
+    const botao = formConvidarUsuario.querySelector(
+        "button[type='submit']"
+    );
+
+    mensagem.textContent = "Enviando convite...";
+    botao.disabled = true;
+
+    // Chama a Edge Function do Supabase
+    const { data, error } = await clienteSupabase.functions.invoke(
+        "clever-processor",
+        {
+            body: {
+                email: email,
+                show_id: idShow,
+                permissao: permissao
+            }
+        }
+    );
+
+    botao.disabled = false;
+
+    if (error) {
+        console.error("Erro ao enviar convite:", error);
+
+        mensagem.textContent =
+            "Não foi possível enviar o convite. Verifique o console.";
+
+        return;
+    }
+
+    if (data.erro) {
+        mensagem.textContent = data.erro;
+        return;
+    }
+
+    mensagem.textContent = data.mensagem;
+
+    formConvidarUsuario.reset();
+});
+

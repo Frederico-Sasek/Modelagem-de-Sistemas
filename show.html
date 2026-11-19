@@ -20,6 +20,34 @@
         <p id="local-show"></p>
         <p id="descricao-show"></p>
 
+        <section class="equipe-section">
+          <h2>Equipe do show</h2>
+
+          <p>
+            Convide pessoas para acessar as informações financeiras deste show.
+          </p>
+
+          <form id="form-convidar-usuario">
+            <label for="email-colaborador">E-mail do colaborador</label>
+            <input
+              type="email"
+              id="email-colaborador"
+              placeholder="colaborador@email.com"
+              required
+            />
+
+            <label for="permissao-colaborador">Permissão</label>
+            <select id="permissao-colaborador" required>
+              <option value="financeiro">Financeiro</option>
+              <option value="administrador">Administrador</option>
+            </select>
+
+            <button type="submit">Enviar convite</button>
+
+            <p id="mensagem-convite"></p>
+          </form>
+        </section>
+
         <section class="financeiro-section">
           <h2>Resumo financeiro</h2>
 
