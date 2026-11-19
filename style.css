@@ -658,3 +658,112 @@ body {
     grid-column: 1;
   }
 }
+/*definir senha*/
+
+/* TELA DE DEFINIÇÃO DE SENHA */
+
+.pagina-definir-senha {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: #0f172a;
+  box-sizing: border-box;
+}
+
+.card-definir-senha {
+  width: 100%;
+  max-width: 430px;
+  padding: 40px;
+  background-color: #1e293b;
+  border-radius: 14px;
+  box-sizing: border-box;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.card-definir-senha h1 {
+  color: #38bdf8;
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.card-definir-senha h2 {
+  color: #ffffff;
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.card-definir-senha > p {
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+#form-definir-senha {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.campo-senha {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.campo-senha label {
+  color: #cbd5e1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.campo-senha input {
+  width: 100%;
+  padding: 13px;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.campo-senha input:focus {
+  outline: none;
+  border-color: #38bdf8;
+}
+
+#btn-salvar-senha {
+  padding: 14px;
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#btn-salvar-senha:hover {
+  background-color: #1d4ed8;
+}
+
+#btn-salvar-senha:disabled {
+  background-color: #475569;
+  cursor: not-allowed;
+}
+
+#mensagem-senha {
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+@media (max-width: 500px) {
+  .card-definir-senha {
+    padding: 25px;
+  }
+}

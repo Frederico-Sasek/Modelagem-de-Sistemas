@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Definir senha | ShowFinance</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <main class="pagina-definir-senha">
+      <section class="card-definir-senha">
+        <h1>ShowFinance</h1>
+
+        <h2>Definir senha</h2>
+
+        <p>
+          Seu convite foi recebido! Agora crie uma senha para acessar o sistema.
+        </p>
+
+        <form id="form-definir-senha">
+          <div class="campo-senha">
+            <label for="nova-senha">Nova senha</label>
+
+            <input
+              type="password"
+              id="nova-senha"
+              placeholder="Digite sua senha"
+              required
+              minlength="8"
+            />
+          </div>
+
+          <div class="campo-senha">
+            <label for="confirmar-senha">Confirmar senha</label>
+
+            <input
+              type="password"
+              id="confirmar-senha"
+              placeholder="Digite novamente sua senha"
+              required
+              minlength="8"
+            />
+          </div>
+
+          <button type="submit" id="btn-salvar-senha">Salvar senha</button>
+
+          <p id="mensagem-senha"></p>
+        </form>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+    <script src="definir-senha.js"></script>
+  </body>
+</html>
