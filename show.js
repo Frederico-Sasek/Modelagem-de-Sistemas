@@ -1288,3 +1288,166 @@ async function carregarColaboradores() {
     lista.appendChild(item);
   });
 }
+
+/* =====================================
+   GERENCIAMENTO DE COLABORADORES
+===================================== */
+
+// Carrega os colaboradores do show
+async function carregarColaboradores() {
+  const lista = document.getElementById("lista-colaboradores");
+  const mensagem = document.getElementById("mensagem-equipe");
+
+  mensagem.textContent = "Carregando colaboradores...";
+  lista.innerHTML = "";
+
+  const { data, error } = await clienteSupabase.functions.invoke(
+    "clever-processor",
+    {
+      body: {
+        acao: "listar",
+        show_id: idShow,
+      },
+    },
+  );
+
+  if (error || !data?.sucesso) {
+    console.error("Erro ao carregar colaboradores:", error || data);
+
+    mensagem.textContent =
+      data?.erro || "Não foi possível carregar os colaboradores.";
+
+    return;
+  }
+
+  const colaboradores = data.colaboradores || [];
+
+  if (colaboradores.length === 0) {
+    mensagem.textContent = "Nenhum colaborador cadastrado.";
+    return;
+  }
+
+  mensagem.textContent = "";
+
+  colaboradores.forEach((colaborador) => {
+    const item = document.createElement("div");
+    item.className = "colaborador-item";
+
+    const email = document.createElement("p");
+    email.className = "colaborador-email";
+    email.textContent = colaborador.email;
+
+    const permissao = document.createElement("select");
+    permissao.className = "seletor-permissao";
+
+    const opcoes = [
+      { valor: "administrador", texto: "Administrador" },
+      { valor: "organizador", texto: "Organizador" },
+      { valor: "financeiro", texto: "Financeiro" },
+    ];
+
+    opcoes.forEach((opcao) => {
+      const option = document.createElement("option");
+      option.value = opcao.valor;
+      option.textContent = opcao.texto;
+
+      permissao.appendChild(option);
+    });
+
+    permissao.value = colaborador.permissao;
+
+    const botoes = document.createElement("div");
+    botoes.className = "acoes-colaborador";
+
+    const btnSalvar = document.createElement("button");
+    btnSalvar.type = "button";
+    btnSalvar.textContent = "Salvar permissão";
+
+    btnSalvar.addEventListener("click", async () => {
+      if (permissao.value === colaborador.permissao) {
+        alert("A permissão selecionada já está definida.");
+        return;
+      }
+
+      const confirmar = confirm(
+        `Deseja alterar a permissão de ${colaborador.email} para ${permissao.options[permissao.selectedIndex].text}?`,
+      );
+
+      if (!confirmar) return;
+
+      btnSalvar.disabled = true;
+
+      const { data, error } = await clienteSupabase.functions.invoke(
+        "clever-processor",
+        {
+          body: {
+            acao: "alterar_permissao",
+            show_id: idShow,
+            usuario_id: colaborador.usuario_id,
+            permissao: permissao.value,
+          },
+        },
+      );
+
+      btnSalvar.disabled = false;
+
+      if (error || !data?.sucesso) {
+        console.error("Erro ao alterar permissão:", error || data);
+
+        alert(data?.erro || "Não foi possível alterar a permissão.");
+        return;
+      }
+
+      alert("Permissão alterada com sucesso!");
+
+      await carregarColaboradores();
+    });
+
+    const btnRemover = document.createElement("button");
+    btnRemover.type = "button";
+    btnRemover.textContent = "Remover";
+
+    btnRemover.addEventListener("click", async () => {
+      const confirmar = confirm(
+        `Tem certeza de que deseja remover ${colaborador.email} deste show?`,
+      );
+
+      if (!confirmar) return;
+
+      btnRemover.disabled = true;
+
+      const { data, error } = await clienteSupabase.functions.invoke(
+        "clever-processor",
+        {
+          body: {
+            acao: "remover",
+            show_id: idShow,
+            usuario_id: colaborador.usuario_id,
+          },
+        },
+      );
+
+      btnRemover.disabled = false;
+
+      if (error || !data?.sucesso) {
+        console.error("Erro ao remover colaborador:", error || data);
+
+        alert(data?.erro || "Não foi possível remover o colaborador.");
+        return;
+      }
+
+      alert("Colaborador removido com sucesso!");
+
+      await carregarColaboradores();
+    });
+
+    botoes.appendChild(btnSalvar);
+    botoes.appendChild(btnRemover);
+
+    item.appendChild(email);
+    item.appendChild(permissao);
+    item.appendChild(botoes);
+
+    lista.appendChild(item);
+  });
+}

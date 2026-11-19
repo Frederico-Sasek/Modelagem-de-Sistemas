@@ -1067,3 +1067,128 @@ body {
     padding: 25px;
   }
 }
+
+/* =====================================
+   GERENCIAMENTO DE COLABORADORES
+===================================== */
+
+.lista-equipe-container {
+  margin-top: 30px;
+  padding-top: 25px;
+  border-top: 1px solid #334155;
+}
+
+.lista-equipe-container h3 {
+  color: #ffffff;
+  font-size: 18px;
+  margin-bottom: 18px;
+}
+
+#mensagem-equipe {
+  color: #94a3b8;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+#lista-colaboradores {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.colaborador-item {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) 180px auto;
+  align-items: center;
+  gap: 15px;
+  padding: 16px;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+}
+
+.colaborador-email {
+  color: #ffffff;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.seletor-permissao {
+  width: 100%;
+  padding: 10px;
+  color: #ffffff;
+  background-color: #101827;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+}
+
+.seletor-permissao:focus {
+  border-color: #3b82f6;
+}
+
+.acoes-colaborador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.acoes-colaborador button {
+  padding: 10px 13px;
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+
+.acoes-colaborador button:first-child {
+  background-color: #2563eb;
+}
+
+.acoes-colaborador button:first-child:hover {
+  background-color: #1d4ed8;
+}
+
+.acoes-colaborador button:last-child {
+  background-color: #dc2626;
+}
+
+.acoes-colaborador button:last-child:hover {
+  background-color: #b91c1c;
+}
+
+.acoes-colaborador button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsividade */
+@media (max-width: 750px) {
+  .colaborador-item {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .acoes-colaborador {
+    width: 100%;
+  }
+
+  .acoes-colaborador button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 400px) {
+  .acoes-colaborador {
+    flex-direction: column;
+  }
+
+  .acoes-colaborador button {
+    width: 100%;
+  }
+}
