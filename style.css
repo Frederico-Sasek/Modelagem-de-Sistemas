@@ -406,29 +406,129 @@ body {
 
 .btn-editar,
 .btn-excluir {
-    padding: 7px 10px;
-    border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-right: 5px;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 5px;
 }
 
 .btn-editar {
-    background-color: #1d4ed8;
-    color: white;
+  background-color: #1d4ed8;
+  color: white;
 }
 
 .btn-editar:hover {
-    background-color: #1e40af;
+  background-color: #1e40af;
 }
 
 .btn-excluir {
-    background-color: #991b1b;
-    color: white;
+  background-color: #991b1b;
+  color: white;
 }
 
 .btn-excluir:hover {
-    background-color: #7f1d1d;
+  background-color: #7f1d1d;
+}
+/* Área de relatórios */
+.relatorios-section {
+    margin-top: 40px;
+    background-color: #1e293b;
+    padding: 25px;
+    border-radius: 12px;
+}
+
+.relatorios-header {
+    margin-bottom: 25px;
+}
+
+.relatorios-header h2 {
+    color: white;
+    margin-bottom: 8px;
+}
+
+.relatorios-header p {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+/* Filtros */
+.filtros-relatorio {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.filtros-relatorio div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filtros-relatorio label {
+    color: #cbd5e1;
+    font-size: 14px;
+}
+
+.filtros-relatorio input {
+    padding: 12px;
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: white;
+}
+
+.filtros-relatorio button {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background-color: #2563eb;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.filtros-relatorio button:hover {
+    background-color: #1d4ed8;
+}
+
+/* Indicadores */
+.relatorio-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.relatorio-card {
+    background-color: #0f172a;
+    padding: 22px;
+    border-radius: 10px;
+}
+
+.relatorio-card h3 {
+    color: #94a3b8;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.relatorio-card p {
+    color: white;
+    font-size: 23px;
+    font-weight: bold;
+}
+
+#mensagem-relatorio {
+    margin-top: 15px;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+@media (max-width: 600px) {
+    .filtros-relatorio,
+    .relatorio-cards {
+        grid-template-columns: 1fr;
+    }
 }

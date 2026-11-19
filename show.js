@@ -666,3 +666,114 @@ async function reabrirDespesa(id) {
   await carregarResumoFinanceiro();
   await carregarDespesas();
 }
+
+// Gera o relatório financeiro do show
+async function gerarRelatorio() {
+  const dataInicial = document.getElementById("data-inicial-relatorio").value;
+  const dataFinal = document.getElementById("data-final-relatorio").value;
+
+  const resultadoRelatorio = document.getElementById("resultado-relatorio");
+
+  // Verifica se as datas foram preenchidas
+  if (!dataInicial || !dataFinal) {
+    resultadoRelatorio.textContent = "Informe a data inicial e a data final.";
+    return;
+  }
+
+  // Verifica se o período é válido
+  if (dataInicial > dataFinal) {
+    resultadoRelatorio.textContent =
+      "A data inicial não pode ser posterior à data final.";
+    return;
+  }
+
+  resultadoRelatorio.textContent = "Gerando relatório...";
+
+  // Busca receitas do período
+  const { data: receitas, error: erroReceitas } = await clienteSupabase
+    .from("receitas")
+    .select("valor")
+    .eq("show_id", idShow)
+    .gte("data_recebimento", dataInicial)
+    .lte("data_recebimento", dataFinal);
+
+  if (erroReceitas) {
+    console.error("Erro ao buscar receitas:", erroReceitas);
+    resultadoRelatorio.textContent = "Erro ao consultar as receitas.";
+    return;
+  }
+
+  // Busca despesas do período
+  const { data: despesas, error: erroDespesas } = await clienteSupabase
+    .from("despesas")
+    .select("valor, status")
+    .eq("show_id", idShow)
+    .gte("data_vencimento", dataInicial)
+    .lte("data_vencimento", dataFinal);
+
+  if (erroDespesas) {
+    console.error("Erro ao buscar despesas:", erroDespesas);
+    resultadoRelatorio.textContent = "Erro ao consultar as despesas.";
+    return;
+  }
+
+  // Calcula os totais
+  const totalReceitas = receitas.reduce(function (total, receita) {
+    return total + Number(receita.valor);
+  }, 0);
+
+  const totalDespesas = despesas.reduce(function (total, despesa) {
+    return total + Number(despesa.valor);
+  }, 0);
+
+  const totalPendentes = despesas.reduce(function (total, despesa) {
+    if (despesa.status === "pendente") {
+      return total + Number(despesa.valor);
+    }
+
+    return total;
+  }, 0);
+
+  const resultado = totalReceitas - totalDespesas;
+
+  // Formata os valores em reais
+  function formatarMoeda(valor) {
+    return valor.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+  }
+
+  // Exibe os resultados
+  resultadoRelatorio.innerHTML = `
+        <h3>Resultado do período</h3>
+
+        <p>Receitas: ${formatarMoeda(totalReceitas)}</p>
+
+        <p>Despesas: ${formatarMoeda(totalDespesas)}</p>
+
+        <p>Despesas pendentes: ${formatarMoeda(totalPendentes)}</p>
+
+        <h3>Resultado financeiro: ${formatarMoeda(resultado)}</h3>
+    `;
+}
+
+document
+  .getElementById("btn-gerar-relatorio")
+  .addEventListener("click", gerarRelatorio);
+
+document
+  .getElementById("btn-limpar-relatorio")
+  .addEventListener("click", function () {
+    document.getElementById("data-inicial-relatorio").value = "";
+    document.getElementById("data-final-relatorio").value = "";
+
+    document.getElementById("relatorio-total-receitas").textContent = "R$ 0,00";
+    document.getElementById("relatorio-total-despesas").textContent = "R$ 0,00";
+    document.getElementById("relatorio-total-pendentes").textContent =
+      "R$ 0,00";
+    document.getElementById("relatorio-resultado").textContent = "R$ 0,00";
+
+    document.getElementById("resultado-relatorio").textContent =
+      "Filtros limpos.";
+  });
