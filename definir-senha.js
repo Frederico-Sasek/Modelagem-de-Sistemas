@@ -34,8 +34,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     if (senha.length < 6) {
-      mensagem.textContent = "A senha deve ter pelo menos 8 caracteres.";
-
+      mensagem.textContent = "A senha deve ter pelo menos 6 caracteres.";
       mensagem.style.color = "#f87171";
       return;
     }

@@ -1,6 +1,5 @@
 const SUPABASE_URL = "https://wwjhlteacweihhifblnl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_NgjeNxdm1gqLRbYjBkMo4w_LKsof79F";
-
 const clienteSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Identifica o show pelo endereço da página
@@ -1187,7 +1186,6 @@ async function carregarColaboradores() {
       const option = document.createElement("option");
       option.value = opcao.valor;
       option.textContent = opcao.texto;
-
       permissao.appendChild(option);
     });
 
@@ -1451,3 +1449,13 @@ async function carregarColaboradores() {
     lista.appendChild(item);
   });
 }
+
+/* =====================================
+   IMPRESSÃO DO RELATÓRIO
+===================================== */
+
+document
+  .getElementById("btn-imprimir-relatorio")
+  .addEventListener("click", () => {
+    window.print();
+  });

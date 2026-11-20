@@ -1192,3 +1192,73 @@ body {
     width: 100%;
   }
 }
+
+/* =====================================
+   IMPRESSÃO DO RELATÓRIO FINANCEIRO
+===================================== */
+
+@media print {
+  /* Esconde os elementos que não pertencem ao relatório */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Mantém visível somente a seção de relatórios */
+  .relatorios-section,
+  .relatorios-section * {
+    visibility: visible;
+  }
+
+  .relatorios-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 20px;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Esconde filtros, botões e mensagens */
+  .filtros-relatorio,
+  #resultado-relatorio {
+    display: none !important;
+  }
+
+  /* Ajusta os indicadores */
+  .relatorio-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .relatorio-card,
+  .grafico-card {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  .relatorio-card h3,
+  .grafico-card h3,
+  .relatorio-card p {
+    color: #000000 !important;
+  }
+
+  /* Evita cortes desnecessários */
+  .grafico-card {
+    page-break-inside: avoid;
+  }
+
+  canvas {
+    max-width: 100% !important;
+  }
+
+  /* Configuração da página */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+}

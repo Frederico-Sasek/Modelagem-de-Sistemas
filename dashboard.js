@@ -64,7 +64,7 @@ async function verificarUsuario() {
 
 verificarUsuario();
 
-//botao pra sair do lgin
+//botao pra sair do login
 botaoSair.addEventListener("click", async function () {
   const { error } = await clienteSupabase.auth.signOut();
 
